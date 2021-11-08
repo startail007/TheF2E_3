@@ -3,29 +3,43 @@
     <Header> </Header>
     <v-main class="main">
       <v-sheet class="section d-flex justify-center align-center" id="section01">
-        <v-container>
-          <v-responsive :aspect-ratio="1226 / 491" class="box d-flex justify-center align-center">
-            <div class="boxContent d-flex align-center flex-column">
-              <v-responsive :aspect-ratio="487 / 69" class="centerLogo"> </v-responsive>
-              <div class="my-2 align-self-start text-body-2 white--text">
-                台北、台中、台南、屏東、宜蘭……遊遍台灣
-              </div>
-              <div class="d-flex align-center w-100 my-1">
-                <v-text-field label="搜尋關鍵字" class="flex-1 mr-2" solo dense hide-details></v-text-field>
-                <v-btn color="#FF1D6C" id="btn_search">
-                  <div class="icon"></div>
-                </v-btn>
-              </div>
-              <div class="d-flex align-center w-100 my-1">
-                <!-- <v-select :items="items" label="類別" class="flex-1 mr-2" solo dense hide-details></v-select> -->
-                <v-select :items="items" v-model="city" class="flex-1 mr-2" solo dense hide-details></v-select>
-                <v-btn color="#FFB72C" id="btn_coordinate">
-                  <div class="icon"></div>
-                </v-btn>
-              </div>
+        <v-responsive :aspect-ratio="1226 / 491" class="box d-flex justify-center align-center max-h-491">
+          <div class="boxContent d-flex align-center flex-column">
+            <v-responsive :aspect-ratio="487 / 69" class="centerLogo"> </v-responsive>
+            <div class="my-2 align-self-start text-body-2 white--text">
+              台北、台中、台南、屏東、宜蘭……遊遍台灣
             </div>
-          </v-responsive>
-        </v-container>
+            <div class="d-flex align-center w-100 my-1">
+              <v-text-field label="搜尋關鍵字" class="flex-1 mr-2" solo dense hide-details></v-text-field>
+              <v-btn color="#FF1D6C" id="btn_search">
+                <div class="icon"></div>
+              </v-btn>
+            </div>
+            <div class="d-flex align-center w-100 my-1">
+              <v-select
+                :items="type_items"
+                v-model="type"
+                label="類別"
+                class="flex-1 mr-2"
+                solo
+                dense
+                hide-details
+              ></v-select>
+              <v-select
+                :items="city_items"
+                v-model="city"
+                class="flex-1 mr-2"
+                label="不分縣市"
+                solo
+                dense
+                hide-details
+              ></v-select>
+              <v-btn color="#FFB72C" id="btn_coordinate">
+                <div class="icon"></div>
+              </v-btn>
+            </div>
+          </div>
+        </v-responsive>
       </v-sheet>
       <v-sheet class="section d-flex justify-center align-center flex-column pb-8" id="section02">
         <div class="w-100 mb-4" id="card_shadow01"></div>
@@ -41,7 +55,7 @@
                   <div
                     class="pic ph-240 max-w-md-240 w-100 w-md-50"
                     :style="{
-                      backgroundImage: `url(${chooseone(item.Picture.PictureUrl1, substitute)})`,
+                      backgroundImage: `url(${chooseone(item.Picture.PictureUrl1, placeholder)})`,
                     }"
                     :title="chooseone(item.Picture.PictureDescription1, '無提供照片')"
                   ></div>
@@ -76,14 +90,14 @@
               >
                 <v-card class="d-flex flex-column pa-3" flat>
                   <div
-                    class="pic ph-160 w-100 mb-2"
+                    class="pic ph-180 w-100 mb-2"
                     :style="{
-                      backgroundImage: `url(${chooseone(item.Picture.PictureUrl1, substitute)})`,
+                      backgroundImage: `url(${chooseone(item.Picture.PictureUrl1, placeholder)})`,
                     }"
                     :title="chooseone(item.Picture.PictureDescription1, '無提供照片')"
                   ></div>
-                  <v-card-title class="pa-0 mb-2">
-                    <div class="title text-body-1" :title="item.Name">{{ item.Name }}</div>
+                  <v-card-title class="pa-0 mb-2 min-h-40 align-start mt-2">
+                    <div class="title text-body-1 text-bold" :title="item.Name">{{ item.Name }}</div>
                   </v-card-title>
                   <v-card-text class="pa-0 mb-2">
                     <div class="d-flex">
@@ -112,7 +126,7 @@
         <div
           class="pic ph-400 w-100 mb-4"
           :style="{
-            backgroundImage: `url(${chooseone(details_info.Picture.PictureUrl1, substitute)})`,
+            backgroundImage: `url(${chooseone(details_info.Picture.PictureUrl1, placeholder)})`,
           }"
           :title="chooseone(details_info.Picture.PictureDescription1, '無提供照片')"
         ></div>
@@ -139,14 +153,16 @@ import Header from "@vue/pages/components/Header";
 import Footer from "@vue/pages/components/Footer";
 import LoadComponents from "@vue/pages/components/LoadComponents";
 import cityList from "@src/res/cityList";
-import substitute from "@img/substitute.jpg";
+import placeholder from "@img/placeholder.jpg";
 export default {
   components: { Header, Footer, LoadComponents },
   data() {
     return {
+      type:"類別",
+      type_items: [{ text: "類別" },{ text: "景點" },{ text: "活動" }],
       city: "不分縣市",
-      substitute,
-      items: [{ text: "不分縣市" }, ...cityList],
+      city_items: [{ text: "不分縣市" }, ...cityList],
+      placeholder,
       data: {
         activity: [],
         restaurant: [],
@@ -344,9 +360,9 @@ export default {
         .v-card {
           box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.05) !important;
           .title {
-            text-overflow: ellipsis;
-            overflow: hidden;
-            white-space: nowrap;
+            // text-overflow: ellipsis;
+            // overflow: hidden;
+            // white-space: nowrap;
             color: #0d0b0c;
           }
           &::after {
