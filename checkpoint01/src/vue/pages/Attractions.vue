@@ -2,14 +2,21 @@
   <v-sheet class="content">
     <Header> </Header>
     <v-main class="main">
-      <v-sheet class="section d-flex justify-center align-center" id="section01">
-        <v-responsive :aspect-ratio="1226 / 491" class="box d-flex justify-center align-center max-h-491">
+      <v-sheet class="section d-flex justify-center align-center pa-2 pa-md-4" id="section01">
+        <v-responsive :aspect-ratio="1226 / 491" class="box d-flex justify-center align-center max-h-491 pa-2 pa-md-4">
           <div class="boxContent d-flex align-center flex-column">
             <v-responsive :aspect-ratio="487 / 69" class="centerLogo"> </v-responsive>
             <div class="my-2 align-self-start text-body-2 white--text">台北、台中、台南、屏東、宜蘭……遊遍台灣</div>
             <div class="d-flex align-center w-100 my-1">
-              <v-text-field label="搜尋關鍵字" class="flex-1 mr-2" solo dense hide-details></v-text-field>
-              <v-btn color="#FF1D6C" id="btn_search">
+              <v-text-field
+                label="搜尋關鍵字"
+                class="flex-1 mr-2"
+                solo
+                dense
+                hide-details
+                v-model="temp_search"
+              ></v-text-field>
+              <v-btn color="#FF1D6C" id="btn_search" @click="search_click">
                 <div class="icon"></div>
               </v-btn>
             </div>
@@ -33,6 +40,7 @@
                 dense
                 hide-details
                 @change="cityInfo_change"
+                :disabled="typeInfo.value == ''"
               ></v-select>
               <v-btn color="#FFB72C" id="btn_coordinate">
                 <div class="icon"></div>
@@ -41,20 +49,23 @@
           </div>
         </v-responsive>
       </v-sheet>
+      <v-sheet class="section d-flex justify-center align-center flex-column pb-8" id="section02">
+        <div class="w-100 mb-4" id="card_shadow01"></div>
+        <div class="text_search text-h6 text-bold" v-if="search">搜尋關鍵字 - {{ search }}</div>
+      </v-sheet>
       <v-sheet
         class="section d-flex justify-center align-center flex-column pb-8"
-        id="section02"
+        id="section03"
         v-if="typeInfo.value == ''"
       >
-        <div class="w-100 mb-4" id="card_shadow01"></div>
-        <v-container id="section02_1" class="mb-8">
+        <v-container id="section03_1" class="mb-8">
           <div class="mb-4 title d-flex align-center">
             <div class="icon mr-2"></div>
             <div class="text-h6 text-bold">最新活動</div>
           </div>
           <div>
             <div class="row items">
-              <div v-for="item in getActivity()" class="col-n1 col-lg-n2 item" :key="item.ID">
+              <div v-for="item in data.activity.slice(0, 4)" class="col-n1 col-lg-n2 item" :key="item.ID">
                 <v-card class="d-flex flex-column flex-md-row pa-4" flat>
                   <div
                     class="pic ph-240 max-w-md-240 w-100 w-md-50"
@@ -80,7 +91,7 @@
             </div>
           </div>
         </v-container>
-        <v-container id="section02_2" class="mb-8">
+        <v-container id="section03_2" class="mb-8">
           <div class="mb-4 title d-flex align-center">
             <div class="icon mr-2"></div>
             <div class="text-h6 text-bold">熱門景點</div>
@@ -88,7 +99,86 @@
           <div>
             <div class="row items">
               <div
-                v-for="item in getScenicspot()"
+                v-for="item in data.scenicspot.slice(0, scenicspotCount)"
+                class="col-n1 col-sm-n2 col-md-n3 col-lg-n4 col-xl-n5 item"
+                :key="item.ID"
+              >
+                <v-card class="d-flex flex-column pa-3" flat>
+                  <div
+                    class="pic ph-180 w-100 mb-2"
+                    :style="{
+                      backgroundImage: `url(${chooseone(item.Picture.PictureUrl1, placeholder)})`,
+                    }"
+                    :title="chooseone(item.Picture.PictureDescription1, '無提供照片')"
+                  ></div>
+                  <v-card-title class="pa-0 mb-2 min-h-40 align-start mt-2">
+                    <div class="title text-body-1 text-bold" :title="item.Name">{{ item.Name }}</div>
+                  </v-card-title>
+                  <v-card-text class="pa-0 mb-2">
+                    <div class="d-flex">
+                      <div class="anchor mr-2"></div>
+                      <div class="address">{{ item.Address }}</div>
+                    </div>
+                  </v-card-text>
+                </v-card>
+              </div>
+            </div>
+          </div>
+        </v-container>
+      </v-sheet>
+      <v-sheet
+        class="section d-flex justify-center align-center flex-column pb-8"
+        id="section03"
+        v-if="typeInfo.value == 'activity'"
+      >
+        <v-container id="section03_1" class="mb-8">
+          <div class="mb-4 title d-flex align-center">
+            <div class="icon mr-2"></div>
+            <div class="text-h6 text-bold">活動 - {{ itemsFindValue(cityInfo.items, cityInfo.value).text }}</div>
+          </div>
+          <div>
+            <div class="row items">
+              <div v-for="item in data.activity.slice(0, 10)" class="col-n1 col-lg-n2 item" :key="item.ID">
+                <v-card class="d-flex flex-column flex-md-row pa-4" flat>
+                  <div
+                    class="pic ph-240 max-w-md-240 w-100 w-md-50"
+                    :style="{
+                      backgroundImage: `url(${chooseone(item.Picture.PictureUrl1, placeholder)})`,
+                    }"
+                    :title="chooseone(item.Picture.PictureDescription1, '無提供照片')"
+                  ></div>
+                  <v-card-text class="d-flex flex-column flex-1 pa-0 py-4 py-md-0 pl-0 pl-md-4 mb-2">
+                    <div class="title text-body-1 mb-2 text-bold" :title="item.Name">{{ item.Name }}</div>
+                    <div class="text-body-2 my-2 description">
+                      {{ item.Description }}
+                    </div>
+                    <div class="flex-1"></div>
+                    <div class="d-flex align-center">
+                      <div class="anchor mr-2"></div>
+                      <div class="flex-1 text-body-1 text-bold city">{{ item.City }}</div>
+                      <v-btn color="#FF1D6C" outlined @click="details_click(item)">活動詳情</v-btn>
+                    </div>
+                  </v-card-text>
+                </v-card>
+              </div>
+            </div>
+          </div>
+        </v-container>
+      </v-sheet>
+      <v-sheet
+        class="section d-flex justify-center align-center flex-column pb-8"
+        id="section03"
+        v-else-if="typeInfo.value == 'scenicspot'"
+      >
+        <v-container id="section03_2" class="mb-8">
+          <div class="mb-4 title d-flex align-center">
+            <div class="icon mr-2"></div>
+            <div class="text-h6 text-bold">景點 - {{ itemsFindValue(cityInfo.items, cityInfo.value).text }}</div>
+          </div>
+          <div>
+            <div class="row items">
+              <div
+                v-for="item in data.scenicspot.slice(0, 20)"
                 class="col-n1 col-sm-n2 col-md-n3 col-lg-n4 col-xl-n5 item"
                 :key="item.ID"
               >
@@ -172,15 +262,21 @@ function getAuthorizationHeader() {
     'hmac username="' + AppID + '", algorithm="hmac-sha1", headers="x-date", signature="' + HMAC + '"';
 
   return { Authorization: Authorization, "X-Date": GMTString /*,'Accept-Encoding': 'gzip'*/ }; //如果要將js運行在伺服器，可額外加入 'Accept-Encoding': 'gzip'，要求壓縮以減少網路傳輸資料量
+  // return {
+  //   Authorization: `hmac username="${AppID}", algorithm="hmac-sha1", headers="x-date", signature="Base64(HMAC-SHA1("x-date: " + x-date , ${AppKey}))"`,
+  //   "X-Date": GMTString,
+  // };
 }
 export default {
   components: { Header, Footer, LoadComponents },
   data() {
     return {
+      temp_search: "",
+      search: "",
       typeInfo: {
         value: "",
         items: [
-          { text: "類別", value: "" },
+          { text: "全部", value: "" },
           { text: "活動", value: "activity" },
           { text: "景點", value: "scenicspot" },
         ],
@@ -205,38 +301,59 @@ export default {
     //   { name: "Section03", src: import("@vue/pages/attractions/section/Section03") },
     //   { name: "Section04", src: import("@vue/pages/attractions/section/Section04") },
     // ]);
-    const authorizationHeader = getAuthorizationHeader();
-    this.getData(authorizationHeader, this.cityInfo.value);
+    this.updateData();
   },
   methods: {
-    getData(authorizationHeader, city) {
+    itemsFindValue(items, value) {
+      return items.filter((el) => el.value === value)?.[0] ?? { text: "", value: "" };
+    },
+    updateData() {
+      const authorizationHeader = getAuthorizationHeader();
+      //console.log(authorizationHeader);
+      let city = this.cityInfo.value;
+      let type = this.typeInfo.value;
+      let search = this.search;
       if (city !== "") {
         city = "/" + city;
       }
-      fetch(
-        `https://ptx.transportdata.tw/MOTC/v2/Tourism/Activity${city}?$orderby=StartTime desc&$top=40&$format=JSON`,
-        authorizationHeader
-      )
-        .then((response) => response.json())
-        .then((jsonData) => {
-          this.data.activity = jsonData;
-          console.log(jsonData);
-        });
-      fetch(
-        `https://ptx.transportdata.tw/MOTC/v2/Tourism/ScenicSpot${city}?$orderby=SrcUpdateTime asc&$top=100&$format=JSON`,
-        authorizationHeader
-      )
-        .then((response) => response.json())
-        .then((jsonData) => {
-          this.data.scenicspot = jsonData;
-          console.log(jsonData);
-        });
-    },
-    getActivity() {
-      return this.data.activity.slice(0, 4);
-    },
-    getScenicspot() {
-      return this.data.scenicspot.slice(0, this.scenicspotCount);
+      if (type === "" || type === "activity") {
+        let top = "";
+        if (type === "") {
+          top = "&$top=40";
+        }
+        let filter = "";
+        if (search !== "") {
+          filter = `&$filter=contains(Name,'${search}') or contains(Organizer,'${search}') or contains(Address,'${search}')`;
+        }
+        fetch(
+          `https://ptx.transportdata.tw/MOTC/v2/Tourism/Activity${city}?$orderby=StartTime desc${top}${filter}&$format=JSON`,
+          { headers: { ...authorizationHeader } }
+        )
+          .then((response) => response.json())
+          .then((jsonData) => {
+            this.data.activity = jsonData;
+            console.log(jsonData);
+          });
+      }
+      if (type === "" || type === "scenicspot") {
+        let top = "";
+        if (type === "") {
+          top = "&$top=100";
+        }
+        let filter = "";
+        if (search !== "") {
+          filter = `&$filter=contains(Keyword,'${search}') or contains(Name,'${search}') or contains(Address,'${search}')`;
+        }
+        fetch(
+          `https://ptx.transportdata.tw/MOTC/v2/Tourism/ScenicSpot${city}?$orderby=SrcUpdateTime asc${top}${filter}&$format=JSON`,
+          { headers: { ...authorizationHeader } }
+        )
+          .then((response) => response.json())
+          .then((jsonData) => {
+            this.data.scenicspot = jsonData;
+            //console.log(jsonData);
+          });
+      }
     },
     details_click(item) {
       this.details_dialog = true;
@@ -246,13 +363,21 @@ export default {
     chooseone(a, b) {
       return a ?? b;
     },
+    search_click() {
+      this.search = this.temp_search;
+      //console.log(this.search);
+      this.updateData();
+    },
     typeInfo_change(val) {
       //console.log(val);
+      if (this.typeInfo.value == "") {
+        this.cityInfo.value = "";
+      }
+      this.updateData();
     },
     cityInfo_change(val) {
       //console.log(val);
-      const authorizationHeader = getAuthorizationHeader();
-      this.getData(authorizationHeader, val);
+      this.updateData();
     },
   },
   computed: {
@@ -344,14 +469,19 @@ export default {
   }
 }
 
-#card_shadow01 {
-  background-image: url(~@img/attractions/card_shadow01.png);
-  background-position: center;
-  background-size: 100% 100%;
-  height: 40px;
-}
-
 .section#section02 {
+  background-color: #e5e5e5;
+  #card_shadow01 {
+    background-image: url(~@img/attractions/card_shadow01.png);
+    background-position: center;
+    background-size: 100% 100%;
+    height: 40px;
+  }
+  .text_search {
+    color: #ff1d6c;
+  }
+}
+.section#section03 {
   background-color: #e5e5e5;
   .anchor {
     background-image: url(~@img/anchor_icon.png);
@@ -360,7 +490,7 @@ export default {
     width: 20px;
     height: 20px;
   }
-  #section02_1 {
+  #section03_1 {
     .title {
       .icon {
         background-image: url(~@img/triangle_icon.png);
@@ -392,7 +522,7 @@ export default {
       }
     }
   }
-  #section02_2 {
+  #section03_2 {
     .title {
       .icon {
         background-image: url(~@img/square_icon.png);
