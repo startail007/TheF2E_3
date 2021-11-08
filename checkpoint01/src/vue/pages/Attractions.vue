@@ -6,9 +6,7 @@
         <v-responsive :aspect-ratio="1226 / 491" class="box d-flex justify-center align-center max-h-491">
           <div class="boxContent d-flex align-center flex-column">
             <v-responsive :aspect-ratio="487 / 69" class="centerLogo"> </v-responsive>
-            <div class="my-2 align-self-start text-body-2 white--text">
-              台北、台中、台南、屏東、宜蘭……遊遍台灣
-            </div>
+            <div class="my-2 align-self-start text-body-2 white--text">台北、台中、台南、屏東、宜蘭……遊遍台灣</div>
             <div class="d-flex align-center w-100 my-1">
               <v-text-field label="搜尋關鍵字" class="flex-1 mr-2" solo dense hide-details></v-text-field>
               <v-btn color="#FF1D6C" id="btn_search">
@@ -17,22 +15,24 @@
             </div>
             <div class="d-flex align-center w-100 my-1">
               <v-select
-                :items="type_items"
-                v-model="type"
+                :items="typeInfo.items"
+                v-model="typeInfo.value"
                 label="類別"
                 class="flex-1 mr-2"
                 solo
                 dense
                 hide-details
+                @change="typeInfo_change"
               ></v-select>
               <v-select
-                :items="city_items"
-                v-model="city"
+                :items="cityInfo.items"
+                v-model="cityInfo.value"
                 class="flex-1 mr-2"
                 label="不分縣市"
                 solo
                 dense
                 hide-details
+                @change="cityInfo_change"
               ></v-select>
               <v-btn color="#FFB72C" id="btn_coordinate">
                 <div class="icon"></div>
@@ -41,7 +41,11 @@
           </div>
         </v-responsive>
       </v-sheet>
-      <v-sheet class="section d-flex justify-center align-center flex-column pb-8" id="section02">
+      <v-sheet
+        class="section d-flex justify-center align-center flex-column pb-8"
+        id="section02"
+        v-if="typeInfo.value == ''"
+      >
         <div class="w-100 mb-4" id="card_shadow01"></div>
         <v-container id="section02_1" class="mb-8">
           <div class="mb-4 title d-flex align-center">
@@ -79,12 +83,12 @@
         <v-container id="section02_2" class="mb-8">
           <div class="mb-4 title d-flex align-center">
             <div class="icon mr-2"></div>
-            <div class="text-h6 text-bold">熱門餐飲</div>
+            <div class="text-h6 text-bold">熱門景點</div>
           </div>
           <div>
             <div class="row items">
               <div
-                v-for="item in getRestaurant()"
+                v-for="item in getScenicspot()"
                 class="col-n1 col-sm-n2 col-md-n3 col-lg-n4 col-xl-n5 item"
                 :key="item.ID"
               >
@@ -154,50 +158,85 @@ import Footer from "@vue/pages/components/Footer";
 import LoadComponents from "@vue/pages/components/LoadComponents";
 import cityList from "@src/res/cityList";
 import placeholder from "@img/placeholder.jpg";
+import jsSHA from "jssha";
+function getAuthorizationHeader() {
+  var AppID = "c3fc7551d62a455083ec06b72ceaa938";
+  var AppKey = "-UzRd4LSDVosLoGCBUY7OBpFVwA";
+
+  var GMTString = new Date().toGMTString();
+  var ShaObj = new jsSHA("SHA-1", "TEXT");
+  ShaObj.setHMACKey(AppKey, "TEXT");
+  ShaObj.update("x-date: " + GMTString);
+  var HMAC = ShaObj.getHMAC("B64");
+  var Authorization =
+    'hmac username="' + AppID + '", algorithm="hmac-sha1", headers="x-date", signature="' + HMAC + '"';
+
+  return { Authorization: Authorization, "X-Date": GMTString /*,'Accept-Encoding': 'gzip'*/ }; //如果要將js運行在伺服器，可額外加入 'Accept-Encoding': 'gzip'，要求壓縮以減少網路傳輸資料量
+}
 export default {
   components: { Header, Footer, LoadComponents },
   data() {
     return {
-      type:"類別",
-      type_items: [{ text: "類別" },{ text: "景點" },{ text: "活動" }],
-      city: "不分縣市",
-      city_items: [{ text: "不分縣市" }, ...cityList],
+      typeInfo: {
+        value: "",
+        items: [
+          { text: "類別", value: "" },
+          { text: "活動", value: "activity" },
+          { text: "景點", value: "scenicspot" },
+        ],
+      },
+      cityInfo: {
+        value: "",
+        items: [{ text: "不分縣市", value: "" }, ...cityList],
+      },
       placeholder,
       data: {
         activity: [],
-        restaurant: [],
+        scenicspot: [],
       },
       details_dialog: false,
       details_info: null,
     };
   },
   mounted() {
-    fetch("https://ptx.transportdata.tw/MOTC/v2/Tourism/Activity?$orderby=StartTime desc&$top=40&$format=JSON")
-      .then((response) => response.json())
-      .then((jsonData) => {
-        this.data.activity = jsonData;
-        console.log(jsonData);
-      });
-    fetch("https://ptx.transportdata.tw/MOTC/v2/Tourism/Restaurant?$orderby=SrcUpdateTime asc&$top=100&$format=JSON")
-      .then((response) => response.json())
-      .then((jsonData) => {
-        this.data.restaurant = jsonData;
-        console.log(jsonData);
-      });
-
     // this.$refs.loadComponents.load([
     //   { name: "Section01", src: import("@vue/pages/attractions/section/Section01") },
     //   { name: "Section02", src: import("@vue/pages/attractions/section/Section02") },
     //   { name: "Section03", src: import("@vue/pages/attractions/section/Section03") },
     //   { name: "Section04", src: import("@vue/pages/attractions/section/Section04") },
     // ]);
+    const authorizationHeader = getAuthorizationHeader();
+    this.getData(authorizationHeader, this.cityInfo.value);
   },
   methods: {
+    getData(authorizationHeader, city) {
+      if (city !== "") {
+        city = "/" + city;
+      }
+      fetch(
+        `https://ptx.transportdata.tw/MOTC/v2/Tourism/Activity${city}?$orderby=StartTime desc&$top=40&$format=JSON`,
+        authorizationHeader
+      )
+        .then((response) => response.json())
+        .then((jsonData) => {
+          this.data.activity = jsonData;
+          console.log(jsonData);
+        });
+      fetch(
+        `https://ptx.transportdata.tw/MOTC/v2/Tourism/ScenicSpot${city}?$orderby=SrcUpdateTime asc&$top=100&$format=JSON`,
+        authorizationHeader
+      )
+        .then((response) => response.json())
+        .then((jsonData) => {
+          this.data.scenicspot = jsonData;
+          console.log(jsonData);
+        });
+    },
     getActivity() {
       return this.data.activity.slice(0, 4);
     },
-    getRestaurant() {
-      return this.data.restaurant.slice(0, this.restaurantCount);
+    getScenicspot() {
+      return this.data.scenicspot.slice(0, this.scenicspotCount);
     },
     details_click(item) {
       this.details_dialog = true;
@@ -207,9 +246,17 @@ export default {
     chooseone(a, b) {
       return a ?? b;
     },
+    typeInfo_change(val) {
+      //console.log(val);
+    },
+    cityInfo_change(val) {
+      //console.log(val);
+      const authorizationHeader = getAuthorizationHeader();
+      this.getData(authorizationHeader, val);
+    },
   },
   computed: {
-    restaurantCount() {
+    scenicspotCount() {
       switch (this.$vuetify.breakpoint.name) {
         case "xs":
           return 4;
