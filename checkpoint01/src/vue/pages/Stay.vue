@@ -364,7 +364,7 @@ export default {
 }
 
 .section#section02 {
-  background-color: #e5e5e5;
+  background-color: #f6f7fb;
   #card_shadow01 {
     background-image: url(~@img/stay/card_shadow01.png);
     background-position: center;
@@ -376,7 +376,7 @@ export default {
   }
 }
 .section#section03 {
-  background-color: #e5e5e5;
+  background-color: #f6f7fb;
   #section03_1 {
     .title {
       .icon {

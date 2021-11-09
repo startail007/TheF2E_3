@@ -265,14 +265,6 @@ export default {
             }
           });
       }
-      // fetch(
-      //   `https://ptx.transportdata.tw/MOTC/v2/Tourism/Bus/Route/TaiwanTrip?$filter=City%20eq%20'NewTaipei'&$top=30&$format=JSON`,
-      //   { headers: { ...authorizationHeader } }
-      // )
-      //   .then((response) => response.json())
-      //   .then((jsonData) => {
-      //     console.log(jsonData);
-      //   });
     },
     details_dialog(item) {
       this.$refs.activityDialog.open({ pics: this.getPicture(item.Picture), ...item });
@@ -367,7 +359,7 @@ export default {
 }
 
 .section#section02 {
-  background-color: #e5e5e5;
+  background-color: #f6f7fb;
   #card_shadow01 {
     background-image: url(~@img/attractions/card_shadow01.png);
     background-position: center;
@@ -379,7 +371,7 @@ export default {
   }
 }
 .section#section03 {
-  background-color: #e5e5e5;
+  background-color: #f6f7fb;
   #section03_1 {
     .title {
       .icon {

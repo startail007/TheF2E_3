@@ -34,21 +34,23 @@
         <div class="text-body-2 my-2 description mb-4">
           {{ details_info.Description }}
         </div>
-        <div class="d-flex align-center">
-          <div class="row">
-            <div class="col-n2 d-flex">
+        <div class="d-flex align-center flex-column">
+          <div class="d-flex w-100 flex-column flex-sm-row">
+            <div class="d-flex flex-sm-2 my-2">
               <div class="dateRangeIcon mr-2"></div>
               <div>{{ getTimeRange(details_info.StartTime, details_info.EndTime) }}</div>
             </div>
-            <div class="col-n2 d-flex">
+            <div class="d-flex flex-sm-1 my-2">
               <div class="chargeIcon mr-2"></div>
               <div>{{ details_info.Charge == 0 ? "無" : chooseone(details_info.Charge, "無") }}</div>
             </div>
-            <div class="col-n2 d-flex">
+          </div>
+          <div class="d-flex w-100 flex-column flex-sm-row">
+            <div class="d-flex flex-sm-2 my-2">
               <div class="anchorIcon mr-2"></div>
               <div>{{ chooseone(details_info.Address, "無") }}</div>
             </div>
-            <div class="col-n2 d-flex">
+            <div class="d-flex flex-sm-1 my-2">
               <div class="phoneIcon mr-2"></div>
               <div>{{ chooseone(details_info.Phone, "無") }}</div>
             </div>
@@ -97,6 +99,8 @@ export default {
     background-size: contain;
     width: 20px;
     height: 20px;
+    min-width: 20px;
+    min-height: 20px;
   }
   .dateRangeIcon {
     background-image: url(~@img/icon/time.png);
@@ -104,6 +108,8 @@ export default {
     background-size: contain;
     width: 20px;
     height: 20px;
+    min-width: 20px;
+    min-height: 20px;
   }
   .chargeIcon {
     background-image: url(~@img/icon/ticket.png);
@@ -111,6 +117,8 @@ export default {
     background-size: contain;
     width: 20px;
     height: 20px;
+    min-width: 20px;
+    min-height: 20px;
   }
   .phoneIcon {
     background-image: url(~@img/icon/tel.png);
@@ -118,6 +126,8 @@ export default {
     background-size: contain;
     width: 20px;
     height: 20px;
+    min-width: 20px;
+    min-height: 20px;
   }
 }
 @media (min-width: get-breakpoints("sm")) {

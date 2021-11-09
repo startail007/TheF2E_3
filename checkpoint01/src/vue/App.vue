@@ -199,7 +199,13 @@ $flexs: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, "auto", "none";
     }
   }
 }
-
+// .v-main {
+//   .v-main__wrap {
+//     min-height: 100%;
+//     display: flex;
+//     flex-direction: column;
+//   }
+// }
 .v-menu__content {
   margin-top: 38px;
 }
