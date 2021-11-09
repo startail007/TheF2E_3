@@ -1,7 +1,7 @@
 <template>
   <v-sheet class="content" :class="{ bgBlur: bgBlur }">
     <Header> </Header>
-    <v-main class="main">
+    <v-main class="main min-h-800">
       <v-sheet class="section d-flex justify-center align-center pa-2 pa-md-4" id="section01">
         <v-responsive :aspect-ratio="1226 / 491" class="box d-flex justify-center align-center max-h-491 pa-2 pa-md-4">
           <div class="boxContent d-flex align-center flex-column">
@@ -222,7 +222,7 @@ export default {
       if (type == "" || type == "activity") {
         const parameter = { orderby: "StartTime desc", format: "JSON" };
         if (type == "") {
-          parameter["top"] = 40;
+          parameter["top"] = 10;
         }
         if (search != "") {
           parameter[
@@ -245,7 +245,7 @@ export default {
       if (type == "" || type == "scenicspot") {
         const parameter = { orderby: "SrcUpdateTime asc", format: "JSON" };
         if (type == "") {
-          parameter["top"] = 100;
+          parameter["top"] = 10;
         }
         if (search != "") {
           parameter[

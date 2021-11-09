@@ -150,6 +150,18 @@ $flexs: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, "auto", "none";
       .vh#{$center}-#{$i * 5} {
         height: #{$i * 5vh};
       }
+      .min-vw#{$center}-#{$i * 5} {
+        min-width: #{$i * 5vh};
+      }
+      .min-vh#{$center}-#{$i * 5} {
+        min-height: #{$i * 5vh};
+      }
+      .max-vw#{$center}-#{$i * 5} {
+        max-width: #{$i * 5vh};
+      }
+      .max-vh#{$center}-#{$i * 5} {
+        max-height: #{$i * 5vh};
+      }
       .barLine#{$center}-#{$i * 5} {
         height: #{$i * 5px};
         &.inlayTop {

@@ -1,6 +1,13 @@
 <template>
   <div>
-    <v-app-bar class="app_bar" app elevation="0" elevate-on-scroll prominent color="rgba(255,255,255,0.98)">
+    <v-app-bar
+      class="app_bar"
+      app
+      elevation="0"
+      elevate-on-scroll
+      :prominent="prominent"
+      color="rgba(255,255,255,0.98)"
+    >
       <v-container class="pa-0 px-md-8 fill-height">
         <div class="d-flex flex-md-column align-center px-4">
           <img class="logo" :src="logo" />
@@ -9,8 +16,15 @@
         <div>
           <Menu class="d-none d-md-flex align-self-end"></Menu>
         </div>
-        <v-btn class="d-flex d-md-none" fab small elevation="0" @click="$refs.sidebar.isOpen = !$refs.sidebar.isOpen">
-          <v-icon>mdi-menu</v-icon>
+        <v-btn
+          class="d-flex d-md-none"
+          fab
+          small
+          elevation="0"
+          @click="$refs.sidebar.isOpen = !$refs.sidebar.isOpen"
+          color="transparent"
+        >
+          <v-icon color="#0d0b0c">mdi-menu</v-icon>
         </v-btn>
         <!-- <v-app-bar-nav-icon
           class="d-flex d-md-none"
@@ -22,8 +36,8 @@
       <template v-slot:content>
         <div class="d-flex pa-4">
           <v-spacer></v-spacer>
-          <v-btn fab small elevation="0" @click="$refs.sidebar.isOpen = false">
-            <v-icon> mdi-close </v-icon>
+          <v-btn fab small elevation="0" @click="$refs.sidebar.isOpen = false" color="transparent">
+            <v-icon color="#0d0b0c"> mdi-close </v-icon>
           </v-btn>
         </div>
         <Menu class="sidebarMenu d-flex flex-column"></Menu>
@@ -42,7 +56,23 @@ export default {
   },
   mounted() {},
   methods: {},
-  computed: {},
+  computed: {
+    prominent() {
+      switch (this.$vuetify.breakpoint.name) {
+        case "xs":
+          return false;
+        case "sm":
+          return false;
+        case "md":
+          return true;
+        case "lg":
+          return true;
+        case "xl":
+          return true;
+      }
+      return false;
+    },
+  },
 };
 </script>
 <style lang="scss" scoped>
