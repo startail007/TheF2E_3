@@ -42,7 +42,7 @@
                 @change="cityInfo_change"
                 :disabled="typeInfo.value == ''"
               ></v-select>
-              <v-btn color="#FFB72C" id="btn_coordinate">
+              <v-btn color="#FFB72C" id="btn_coordinate" @click="coordinate_click">
                 <div class="icon"></div>
               </v-btn>
             </div>
@@ -65,7 +65,7 @@
           </div>
           <div>
             <div class="row items">
-              <div v-for="item in data.activity.slice(0, 4)" class="col-n1 col-lg-n2 item" :key="item.ID">
+              <div v-for="item in data.activity.slice(0, 4)" class="col-n1 col-lg-n2 item mb-4" :key="item.ID">
                 <v-card class="d-flex flex-column flex-md-row pa-4" flat>
                   <div
                     class="pic ph-240 max-w-md-240 w-100 w-md-50"
@@ -100,7 +100,7 @@
             <div class="row items">
               <div
                 v-for="item in data.scenicspot.slice(0, scenicspotCount)"
-                class="col-n1 col-sm-n2 col-md-n3 col-lg-n4 col-xl-n5 item"
+                class="col-n1 col-sm-n2 col-md-n3 col-lg-n4 col-xl-n5 item mb-4"
                 :key="item.ID"
               >
                 <v-card class="d-flex flex-column pa-3" flat>
@@ -138,7 +138,14 @@
           </div>
           <div>
             <div class="row items">
-              <div v-for="item in data.activity.slice(0, 10)" class="col-n1 col-lg-n2 item" :key="item.ID">
+              <div
+                v-for="item in data.activity.slice(
+                  (activity.pageIndex - 1) * activity.pageItemMax,
+                  (activity.pageIndex - 1) * activity.pageItemMax + activity.pageItemMax
+                )"
+                class="col-n1 col-lg-n2 item mb-4"
+                :key="item.ID"
+              >
                 <v-card class="d-flex flex-column flex-md-row pa-4" flat>
                   <div
                     class="pic ph-240 max-w-md-240 w-100 w-md-50"
@@ -162,6 +169,9 @@
                 </v-card>
               </div>
             </div>
+            <div class="mt-8" v-if="activity.pageTotal">
+              <v-pagination v-model="activity.pageIndex" :length="activity.pageTotal" :total-visible="7"></v-pagination>
+            </div>
           </div>
         </v-container>
       </v-sheet>
@@ -178,8 +188,11 @@
           <div>
             <div class="row items">
               <div
-                v-for="item in data.scenicspot.slice(0, 20)"
-                class="col-n1 col-sm-n2 col-md-n3 col-lg-n4 col-xl-n5 item"
+                v-for="item in data.scenicspot.slice(
+                  (scenicspot.pageIndex - 1) * scenicspot.pageItemMax,
+                  (scenicspot.pageIndex - 1) * scenicspot.pageItemMax + scenicspot.pageItemMax
+                )"
+                class="col-n1 col-sm-n2 col-md-n3 col-lg-n4 col-xl-n5 item mb-4"
                 :key="item.ID"
               >
                 <v-card class="d-flex flex-column pa-3" flat>
@@ -201,6 +214,13 @@
                   </v-card-text>
                 </v-card>
               </div>
+            </div>
+            <div class="mt-8" v-if="scenicspot.pageTotal">
+              <v-pagination
+                v-model="scenicspot.pageIndex"
+                :length="scenicspot.pageTotal"
+                :total-visible="7"
+              ></v-pagination>
             </div>
           </div>
         </v-container>
@@ -292,6 +312,16 @@ export default {
       },
       details_dialog: false,
       details_info: null,
+      activity: {
+        pageItemMax: 10,
+        pageIndex: 1,
+        pageTotal: 1,
+      },
+      scenicspot: {
+        pageItemMax: 20,
+        pageIndex: 1,
+        pageTotal: 1,
+      },
     };
   },
   mounted() {
@@ -305,7 +335,7 @@ export default {
   },
   methods: {
     itemsFindValue(items, value) {
-      return items.filter((el) => el.value === value)?.[0] ?? { text: "", value: "" };
+      return items.filter((el) => el.value == value)?.[0] ?? { text: "", value: "" };
     },
     updateData() {
       const authorizationHeader = getAuthorizationHeader();
@@ -313,16 +343,16 @@ export default {
       let city = this.cityInfo.value;
       let type = this.typeInfo.value;
       let search = this.search;
-      if (city !== "") {
+      if (city != "") {
         city = "/" + city;
       }
-      if (type === "" || type === "activity") {
+      if (type == "" || type == "activity") {
         let top = "";
-        if (type === "") {
+        if (type == "") {
           top = "&$top=40";
         }
         let filter = "";
-        if (search !== "") {
+        if (search != "") {
           filter = `&$filter=contains(Name,'${search}') or contains(Organizer,'${search}') or contains(Address,'${search}')`;
         }
         fetch(
@@ -332,16 +362,20 @@ export default {
           .then((response) => response.json())
           .then((jsonData) => {
             this.data.activity = jsonData;
-            console.log(jsonData);
+            //console.log(jsonData);
+            if (this.typeInfo.value != "") {
+              this.activity.pageIndex = 1;
+              this.activity.pageTotal = Math.ceil(this.data.activity.length / this.activity.pageItemMax);
+            }
           });
       }
-      if (type === "" || type === "scenicspot") {
+      if (type == "" || type == "scenicspot") {
         let top = "";
-        if (type === "") {
+        if (type == "") {
           top = "&$top=100";
         }
         let filter = "";
-        if (search !== "") {
+        if (search != "") {
           filter = `&$filter=contains(Keyword,'${search}') or contains(Name,'${search}') or contains(Address,'${search}')`;
         }
         fetch(
@@ -352,6 +386,10 @@ export default {
           .then((jsonData) => {
             this.data.scenicspot = jsonData;
             //console.log(jsonData);
+            if (this.typeInfo.value != "") {
+              this.scenicspot.pageIndex = 1;
+              this.scenicspot.pageTotal = Math.ceil(this.data.scenicspot.length / this.scenicspot.pageItemMax);
+            }
           });
       }
     },
@@ -367,6 +405,9 @@ export default {
       this.search = this.temp_search;
       //console.log(this.search);
       this.updateData();
+    },
+    coordinate_click() {
+      alert("尚未開放功能");
     },
     typeInfo_change(val) {
       //console.log(val);
@@ -583,6 +624,7 @@ export default {
     }
   }
 }
+
 @media (min-width: get-breakpoints("sm")) {
 }
 @media (min-width: get-breakpoints("md")) {
