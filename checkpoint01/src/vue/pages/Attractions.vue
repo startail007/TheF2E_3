@@ -10,7 +10,7 @@
             <div class="d-flex align-center w-100 my-1">
               <v-text-field
                 label="搜尋關鍵字"
-                class="flex-1 mr-2"
+                class="flex-1"
                 solo
                 dense
                 hide-details
@@ -35,7 +35,7 @@
               <v-select
                 :items="cityInfo.items"
                 v-model="cityInfo.value"
-                class="flex-1 mr-2"
+                class="flex-1"
                 label="不分縣市"
                 solo
                 dense
