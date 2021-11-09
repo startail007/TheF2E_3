@@ -1,5 +1,5 @@
 <template>
-  <v-sheet class="content">
+  <v-sheet class="content" :class="{ bgBlur: bgBlur }">
     <Header> </Header>
     <v-main class="main">
       <v-sheet class="section d-flex justify-center align-center pa-2 pa-md-4" id="section01">
@@ -15,10 +15,11 @@
                 dense
                 hide-details
                 v-model="temp_search"
+                @change="search_change"
               ></v-text-field>
-              <v-btn color="#FF1D6C" id="btn_search" @click="search_click">
+              <!-- <v-btn color="#FF1D6C" id="btn_search" @click="search_click">
                 <div class="icon"></div>
-              </v-btn>
+              </v-btn> -->
             </div>
             <div class="d-flex align-center w-100 my-1">
               <v-select
@@ -42,9 +43,9 @@
                 @change="cityInfo_change"
                 :disabled="typeInfo.value == ''"
               ></v-select>
-              <v-btn color="#FFB72C" id="btn_coordinate" @click="coordinate_click">
+              <!-- <v-btn color="#FFB72C" id="btn_coordinate" @click="coordinate_click">
                 <div class="icon"></div>
-              </v-btn>
+              </v-btn> -->
             </div>
           </div>
         </v-responsive>
@@ -66,27 +67,7 @@
           <div>
             <div class="row items">
               <div v-for="item in data.activity.slice(0, 4)" class="col-n1 col-lg-n2 item mb-4" :key="item.ID">
-                <v-card class="d-flex flex-column flex-md-row pa-4" flat>
-                  <div
-                    class="pic ph-240 max-w-md-240 w-100 w-md-50"
-                    :style="{
-                      backgroundImage: `url(${chooseone(item.Picture.PictureUrl1, placeholder)})`,
-                    }"
-                    :title="chooseone(item.Picture.PictureDescription1, '無提供照片')"
-                  ></div>
-                  <v-card-text class="d-flex flex-column flex-1 pa-0 py-4 py-md-0 pl-0 pl-md-4 mb-2">
-                    <div class="title text-body-1 mb-2 text-bold" :title="item.Name">{{ item.Name }}</div>
-                    <div class="text-body-2 my-2 description">
-                      {{ item.Description }}
-                    </div>
-                    <div class="flex-1"></div>
-                    <div class="d-flex align-center">
-                      <div class="anchor mr-2"></div>
-                      <div class="flex-1 text-body-1 text-bold city">{{ item.City }}</div>
-                      <v-btn color="#FF1D6C" outlined @click="details_click(item)">活動詳情</v-btn>
-                    </div>
-                  </v-card-text>
-                </v-card>
+                <Card01 :item="item" @details="details_dialog"></Card01>
               </div>
             </div>
           </div>
@@ -103,24 +84,7 @@
                 class="col-n1 col-sm-n2 col-md-n3 col-lg-n4 col-xl-n5 item mb-4"
                 :key="item.ID"
               >
-                <v-card class="d-flex flex-column pa-3" flat>
-                  <div
-                    class="pic ph-180 w-100 mb-2"
-                    :style="{
-                      backgroundImage: `url(${chooseone(item.Picture.PictureUrl1, placeholder)})`,
-                    }"
-                    :title="chooseone(item.Picture.PictureDescription1, '無提供照片')"
-                  ></div>
-                  <v-card-title class="pa-0 mb-2 min-h-40 align-start mt-2">
-                    <div class="title text-body-1 text-bold" :title="item.Name">{{ item.Name }}</div>
-                  </v-card-title>
-                  <v-card-text class="pa-0 mb-2">
-                    <div class="d-flex">
-                      <div class="anchor mr-2"></div>
-                      <div class="address">{{ item.Address }}</div>
-                    </div>
-                  </v-card-text>
-                </v-card>
+                <Card02 :item="item"></Card02>
               </div>
             </div>
           </div>
@@ -146,27 +110,7 @@
                 class="col-n1 col-lg-n2 item mb-4"
                 :key="item.ID"
               >
-                <v-card class="d-flex flex-column flex-md-row pa-4" flat>
-                  <div
-                    class="pic ph-240 max-w-md-240 w-100 w-md-50"
-                    :style="{
-                      backgroundImage: `url(${chooseone(item.Picture.PictureUrl1, placeholder)})`,
-                    }"
-                    :title="chooseone(item.Picture.PictureDescription1, '無提供照片')"
-                  ></div>
-                  <v-card-text class="d-flex flex-column flex-1 pa-0 py-4 py-md-0 pl-0 pl-md-4 mb-2">
-                    <div class="title text-body-1 mb-2 text-bold" :title="item.Name">{{ item.Name }}</div>
-                    <div class="text-body-2 my-2 description">
-                      {{ item.Description }}
-                    </div>
-                    <div class="flex-1"></div>
-                    <div class="d-flex align-center">
-                      <div class="anchor mr-2"></div>
-                      <div class="flex-1 text-body-1 text-bold city">{{ item.City }}</div>
-                      <v-btn color="#FF1D6C" outlined @click="details_click(item)">活動詳情</v-btn>
-                    </div>
-                  </v-card-text>
-                </v-card>
+                <Card01 :item="item" @details="details_dialog"></Card01>
               </div>
             </div>
             <div class="mt-8" v-if="activity.pageTotal">
@@ -195,24 +139,7 @@
                 class="col-n1 col-sm-n2 col-md-n3 col-lg-n4 col-xl-n5 item mb-4"
                 :key="item.ID"
               >
-                <v-card class="d-flex flex-column pa-3" flat>
-                  <div
-                    class="pic ph-180 w-100 mb-2"
-                    :style="{
-                      backgroundImage: `url(${chooseone(item.Picture.PictureUrl1, placeholder)})`,
-                    }"
-                    :title="chooseone(item.Picture.PictureDescription1, '無提供照片')"
-                  ></div>
-                  <v-card-title class="pa-0 mb-2 min-h-40 align-start mt-2">
-                    <div class="title text-body-1 text-bold" :title="item.Name">{{ item.Name }}</div>
-                  </v-card-title>
-                  <v-card-text class="pa-0 mb-2">
-                    <div class="d-flex">
-                      <div class="anchor mr-2"></div>
-                      <div class="address">{{ item.Address }}</div>
-                    </div>
-                  </v-card-text>
-                </v-card>
+                <Card02 :item="item"></Card02>
               </div>
             </div>
             <div class="mt-8" v-if="scenicspot.pageTotal">
@@ -225,70 +152,24 @@
           </div>
         </v-container>
       </v-sheet>
-      <!-- <LoadComponents ref="loadComponents">
-        <template v-slot:content="{ components }">
-          <component :is="components.Section01" />
-          <component :is="components.Section02" />
-          <component :is="components.Section03" />
-          <component :is="components.Section04" />
-        </template>
-      </LoadComponents> -->
     </v-main>
     <Footer></Footer>
-    <v-dialog v-model="details_dialog" width="800">
-      <v-card v-if="details_info">
-        <div
-          class="pic ph-400 w-100 mb-4"
-          :style="{
-            backgroundImage: `url(${chooseone(details_info.Picture.PictureUrl1, placeholder)})`,
-          }"
-          :title="chooseone(details_info.Picture.PictureDescription1, '無提供照片')"
-        ></div>
-        <v-card-text class="d-flex flex-column flex-1">
-          <div class="title mb-2 text-bold text-h6" :title="details_info.Name">{{ details_info.Name }}</div>
-          <div class="text-body-2 my-2 description">
-            {{ details_info.Description }}
-          </div>
-          <div class="d-flex align-center">
-            <div class="row">
-              <div class="col-n2">{{ chooseone(details_info.Cycle, "無") }}</div>
-              <div class="col-n2">{{ chooseone(details_info.Charge, "無") }}</div>
-              <div class="col-n2">{{ chooseone(details_info.Address, "無") }}</div>
-              <div class="col-n2">{{ chooseone(details_info.Phone, "無") }}</div>
-            </div>
-          </div>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
+    <ActivityDialog ref="activityDialog" @display="activityDialog_display"></ActivityDialog>
   </v-sheet>
 </template>
 <script>
 import Header from "@vue/pages/components/Header";
 import Footer from "@vue/pages/components/Footer";
-import LoadComponents from "@vue/pages/components/LoadComponents";
+import ActivityDialog from "@vue/pages/components/ActivityDialog";
+import Card01 from "@vue/pages/components/Card01";
+import Card02 from "@vue/pages/components/Card02";
 import cityList from "@src/res/cityList";
 import placeholder from "@img/placeholder.jpg";
-import jsSHA from "jssha";
-function getAuthorizationHeader() {
-  var AppID = "c3fc7551d62a455083ec06b72ceaa938";
-  var AppKey = "-UzRd4LSDVosLoGCBUY7OBpFVwA";
+import mixins_funs from "@vue/mixins/funs";
 
-  var GMTString = new Date().toGMTString();
-  var ShaObj = new jsSHA("SHA-1", "TEXT");
-  ShaObj.setHMACKey(AppKey, "TEXT");
-  ShaObj.update("x-date: " + GMTString);
-  var HMAC = ShaObj.getHMAC("B64");
-  var Authorization =
-    'hmac username="' + AppID + '", algorithm="hmac-sha1", headers="x-date", signature="' + HMAC + '"';
-
-  return { Authorization: Authorization, "X-Date": GMTString /*,'Accept-Encoding': 'gzip'*/ }; //如果要將js運行在伺服器，可額外加入 'Accept-Encoding': 'gzip'，要求壓縮以減少網路傳輸資料量
-  // return {
-  //   Authorization: `hmac username="${AppID}", algorithm="hmac-sha1", headers="x-date", signature="Base64(HMAC-SHA1("x-date: " + x-date , ${AppKey}))"`,
-  //   "X-Date": GMTString,
-  // };
-}
 export default {
-  components: { Header, Footer, LoadComponents },
+  mixins: [mixins_funs],
+  components: { Header, Footer, ActivityDialog, Card01, Card02 },
   data() {
     return {
       temp_search: "",
@@ -310,8 +191,7 @@ export default {
         activity: [],
         scenicspot: [],
       },
-      details_dialog: false,
-      details_info: null,
+      bgBlur: false,
       activity: {
         pageItemMax: 10,
         pageIndex: 1,
@@ -324,21 +204,13 @@ export default {
       },
     };
   },
+  watch: {},
   mounted() {
-    // this.$refs.loadComponents.load([
-    //   { name: "Section01", src: import("@vue/pages/attractions/section/Section01") },
-    //   { name: "Section02", src: import("@vue/pages/attractions/section/Section02") },
-    //   { name: "Section03", src: import("@vue/pages/attractions/section/Section03") },
-    //   { name: "Section04", src: import("@vue/pages/attractions/section/Section04") },
-    // ]);
     this.updateData();
   },
   methods: {
-    itemsFindValue(items, value) {
-      return items.filter((el) => el.value == value)?.[0] ?? { text: "", value: "" };
-    },
     updateData() {
-      const authorizationHeader = getAuthorizationHeader();
+      const authorizationHeader = this.getAuthorizationHeader();
       //console.log(authorizationHeader);
       let city = this.cityInfo.value;
       let type = this.typeInfo.value;
@@ -346,19 +218,20 @@ export default {
       if (city != "") {
         city = "/" + city;
       }
+
       if (type == "" || type == "activity") {
-        let top = "";
+        const parameter = { orderby: "StartTime desc", format: "JSON" };
         if (type == "") {
-          top = "&$top=40";
+          parameter["top"] = 40;
         }
-        let filter = "";
         if (search != "") {
-          filter = `&$filter=contains(Name,'${search}') or contains(Organizer,'${search}') or contains(Address,'${search}')`;
+          parameter[
+            "filter"
+          ] = `contains(Name,'${search}') or contains(Organizer,'${search}') or contains(Address,'${search}')`;
         }
-        fetch(
-          `https://ptx.transportdata.tw/MOTC/v2/Tourism/Activity${city}?$orderby=StartTime desc${top}${filter}&$format=JSON`,
-          { headers: { ...authorizationHeader } }
-        )
+        fetch(`https://ptx.transportdata.tw/MOTC/v2/Tourism/Activity${city}?${this.parameterToStr(parameter)}`, {
+          headers: { ...authorizationHeader },
+        })
           .then((response) => response.json())
           .then((jsonData) => {
             this.data.activity = jsonData;
@@ -370,18 +243,18 @@ export default {
           });
       }
       if (type == "" || type == "scenicspot") {
-        let top = "";
+        const parameter = { orderby: "SrcUpdateTime asc", format: "JSON" };
         if (type == "") {
-          top = "&$top=100";
+          parameter["top"] = 100;
         }
-        let filter = "";
         if (search != "") {
-          filter = `&$filter=contains(Keyword,'${search}') or contains(Name,'${search}') or contains(Address,'${search}')`;
+          parameter[
+            "filter"
+          ] = `contains(Keyword,'${search}') or contains(Name,'${search}') or contains(Address,'${search}')`;
         }
-        fetch(
-          `https://ptx.transportdata.tw/MOTC/v2/Tourism/ScenicSpot${city}?$orderby=SrcUpdateTime asc${top}${filter}&$format=JSON`,
-          { headers: { ...authorizationHeader } }
-        )
+        fetch(`https://ptx.transportdata.tw/MOTC/v2/Tourism/ScenicSpot${city}?${this.parameterToStr(parameter)}`, {
+          headers: { ...authorizationHeader },
+        })
           .then((response) => response.json())
           .then((jsonData) => {
             this.data.scenicspot = jsonData;
@@ -392,14 +265,22 @@ export default {
             }
           });
       }
+      // fetch(
+      //   `https://ptx.transportdata.tw/MOTC/v2/Tourism/Bus/Route/TaiwanTrip?$filter=City%20eq%20'NewTaipei'&$top=30&$format=JSON`,
+      //   { headers: { ...authorizationHeader } }
+      // )
+      //   .then((response) => response.json())
+      //   .then((jsonData) => {
+      //     console.log(jsonData);
+      //   });
     },
-    details_click(item) {
-      this.details_dialog = true;
-      console.log(item);
-      this.details_info = item;
+    details_dialog(item) {
+      this.$refs.activityDialog.open({ pics: this.getPicture(item.Picture), ...item });
     },
-    chooseone(a, b) {
-      return a ?? b;
+    search_change() {
+      this.search = this.temp_search;
+      //console.log(this.search);
+      this.updateData();
     },
     search_click() {
       this.search = this.temp_search;
@@ -419,6 +300,9 @@ export default {
     cityInfo_change(val) {
       //console.log(val);
       this.updateData();
+    },
+    activityDialog_display(val) {
+      this.bgBlur = val;
     },
   },
   computed: {
@@ -441,34 +325,6 @@ export default {
 </script>
 <style lang="scss" scoped>
 @import "~@css/_variables.scss";
-// .main::v-deep {
-//   #barLine_start_01 {
-//     background-position: center;
-//     background-size: auto 100%;
-//     background-image: url(~@img/attractions/barLine_start_01.svg);
-//     background-repeat: repeat-x;
-//     z-index: 1;
-//   }
-//   #barLine_01_02 {
-//     background-position: center;
-//     background-size: auto 100%;
-//     background-image: url(~@img/attractions/barLine_01_02.svg);
-//     background-repeat: repeat-x;
-//   }
-//   #barLine_02_03 {
-//     background-position: center;
-//     background-size: auto 100%;
-//     background-image: url(~@img/attractions/barLine_02_03.svg);
-//     background-repeat: repeat-x;
-//     z-index: 1;
-//   }
-//   #barLine_03_04 {
-//     background-position: center;
-//     background-size: auto 100%;
-//     background-image: url(~@img/attractions/barLine_03_04.svg);
-//     background-repeat: repeat-x;
-//   }
-// }
 .section#section01 {
   .box {
     background-image: url(~@img/attractions/bg.jpg);
@@ -524,13 +380,6 @@ export default {
 }
 .section#section03 {
   background-color: #e5e5e5;
-  .anchor {
-    background-image: url(~@img/anchor_icon.png);
-    background-position: center;
-    background-size: contain;
-    width: 20px;
-    height: 20px;
-  }
   #section03_1 {
     .title {
       .icon {
@@ -539,27 +388,6 @@ export default {
         background-size: contain;
         width: 20px;
         height: 20px;
-      }
-    }
-    .items {
-      .item {
-        .v-card {
-          box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.05) !important;
-          .title {
-            color: #0d0b0c;
-          }
-          &::after {
-            content: "";
-            position: absolute;
-            width: 100%;
-            height: 20px;
-            left: 0;
-            top: 100%;
-            background-image: url(~@img/attractions/card_shadow02.png);
-            background-position: center;
-            background-size: 100% 100%;
-          }
-        }
       }
     }
   }
@@ -573,58 +401,8 @@ export default {
         height: 20px;
       }
     }
-    .items {
-      .item {
-        .v-card {
-          box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.05) !important;
-          .title {
-            // text-overflow: ellipsis;
-            // overflow: hidden;
-            // white-space: nowrap;
-            color: #0d0b0c;
-          }
-          &::after {
-            content: "";
-            position: absolute;
-            width: 100%;
-            height: 20px;
-            left: 0;
-            top: 100%;
-            background-image: url(~@img/attractions/card_shadow03.png);
-            background-position: center;
-            background-size: 100% 100%;
-          }
-        }
-      }
-    }
   }
 }
-.pic {
-  background-position: center;
-  background-size: cover;
-}
-.items {
-  .item {
-    .v-card {
-      min-height: 100%;
-      .description {
-        color: #acacac;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        display: -webkit-box;
-        -webkit-line-clamp: 5;
-        -webkit-box-orient: vertical;
-      }
-      .city {
-        color: #0d0b0c;
-      }
-      .address {
-        color: #007350;
-      }
-    }
-  }
-}
-
 @media (min-width: get-breakpoints("sm")) {
 }
 @media (min-width: get-breakpoints("md")) {

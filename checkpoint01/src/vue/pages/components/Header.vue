@@ -23,9 +23,7 @@
         <div class="d-flex pa-4">
           <v-spacer></v-spacer>
           <v-btn fab small elevation="0" @click="$refs.sidebar.isOpen = false">
-            <v-icon>
-              mdi-close
-            </v-icon>
+            <v-icon> mdi-close </v-icon>
           </v-btn>
         </div>
         <Menu class="sidebarMenu d-flex flex-column"></Menu>
@@ -75,7 +73,7 @@ export default {
       width: 100%;
       height: 1px;
       //background-color: brown;
-      background-image: linear-gradient(to right, #b2d0db00 0%, #b2d0db 50%, #b2d0db00 100%);
+      background-image: linear-gradient(to right, #c8c8c800 0%, #c8c8c8 50%, #c8c8c800 100%);
     }
   }
 }
