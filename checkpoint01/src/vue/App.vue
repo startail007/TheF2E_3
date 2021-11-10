@@ -249,6 +249,53 @@ $flexs: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, "auto", "none";
   background-position: center;
   background-size: cover;
 }
+/*
+::-webkit-scrollbar {
+  width: 14px;
+  height: 14px;
+}
+::-webkit-scrollbar-track {
+  background-color: #dbdbdb;
+}
+::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  border: 0.05em solid rgba(255, 255, 255, 0.5);
+  background-color: #a7a7a7;
+  &:hover,
+  &:active {
+    background-color: #dbd8d9;
+  }
+}
+::-webkit-scrollbar-corner {
+  background-color: #e6e6e6;
+}
+::-webkit-scrollbar-button:single-button {
+  height: 14px;
+  background-position: center;
+  background-size: 60%;
+  background-repeat: no-repeat;
+  background-color: #a7a7a7;
+  &:hover,
+  &:active {
+    background-color: #dbd8d9;
+  }
+}
+::-webkit-scrollbar-button:single-button:vertical:decrement {
+  background-image: url(~@img/arrow-up.svg);
+}
+::-webkit-scrollbar-button:single-button:vertical:increment {
+  background-image: url(~@img/arrow-down.svg);
+}
+.v-dialog {
+  border-radius: 0;
+}
+.v-sheet.v-card {
+  border-radius: 0;
+  .pic {
+    border-radius: 0;
+  }
+}
+*/
 @media (min-width: get-breakpoints("sm")) {
 }
 @media (min-width: get-breakpoints("md")) {

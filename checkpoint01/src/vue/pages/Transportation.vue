@@ -5,7 +5,7 @@
       <v-sheet class="section d-flex justify-center align-center pa-2 pa-md-4 pb-0 pb-md-0" id="section01">
         <v-container class="pb-0">
           <div class="d-flex justify-center align-center flex-column">
-            <div class="d-flex max-w-400 mb-8">
+            <div class="d-flex max-w-500 mb-8">
               <v-select
                 :items="cityInfo.items"
                 v-model="cityInfo.value"
@@ -15,6 +15,8 @@
                 dense
                 hide-details
                 @change="cityInfo_change"
+                color="primary"
+                item-color="primary"
               ></v-select>
               <v-select
                 :items="routeInfo.items"
@@ -26,9 +28,11 @@
                 hide-details
                 no-data-text="無資料"
                 @change="routeInfo_change"
+                color="primary"
+                item-color="primary"
               ></v-select>
             </div>
-            <v-item-group v-if="routeInfo.value !== ''" mandatory v-model="routeIndex" class="d-flex w-100 max-w-400">
+            <v-item-group v-if="routeInfo.value !== ''" mandatory v-model="routeIndex" class="d-flex w-100 max-w-500">
               <v-item class="routeItem flex-1 text-center py-2 text-bold" v-slot="{ active, toggle }">
                 <div @click="toggle">
                   往 <span class="stopName">{{ destinationStopName }}</span>
@@ -48,41 +52,50 @@
       </v-sheet>
       <v-sheet class="section d-flex justify-center align-center flex-column pb-8 flex-1" id="section03">
         <v-container>
-          <div class="d-flex flex-column flex-wrap ph-md-800 ph-lg-600 box">
+          <div class="d-flex box min-h-600">
             <template v-if="routeInfo.value === ''">
               <div class="pa-8 d-flex justify-center text-h6">請選擇公車路線</div>
             </template>
             <template v-else-if="routeIndex == 0">
-              <div
-                class="stopItem pa-4 d-flex align-center"
-                v-for="item in stopOfRoute.p"
-                :key="item.StopID"
-                :class="{ noDeparture: !item.EstimateTime }"
-              >
-                <div
-                  class="state min-w-120 mr-4 min-h-40 d-flex justify-center align-center text-bold"
-                  :class="[getStateClass(item)]"
-                >
-                  <div v-if="item.A2EventType === 0">離站中</div>
-                  <div v-else-if="item.A2EventType === 1">進站中</div>
-                  <div v-else-if="!item.EstimateTime">未發車</div>
-                  <div v-else>{{ item.EstimateTime }}</div>
+              <div class="row" v-if="stopOfRoute.p.length >= 10">
+                <div class="col-n2">
+                  <StopItem01
+                    :item="item"
+                    v-for="item in stopOfRoute.p.slice(0, Math.round(stopOfRoute.p.length / 2))"
+                    :key="item.StopID"
+                  ></StopItem01>
                 </div>
-                <div class="text flex-1">{{ item.StopName.Zh_tw }}</div>
+                <div class="col-n2">
+                  <StopItem01
+                    :item="item"
+                    v-for="item in stopOfRoute.p.slice(Math.round(stopOfRoute.p.length / 2), stopOfRoute.p.length)"
+                    :key="item.StopID"
+                  ></StopItem01>
+                </div>
+              </div>
+              <div v-else>
+                <StopItem01 :item="item" v-for="item in stopOfRoute.p" :key="item.StopID"></StopItem01>
               </div>
             </template>
             <template v-else-if="routeIndex == 1">
-              <div class="stopItem pa-4 d-flex align-center" v-for="item in stopOfRoute.n" :key="item.StopID">
-                <div
-                  class="state min-w-120 mr-4 min-h-40 d-flex justify-center align-center text-bold"
-                  :class="[getStateClass(item)]"
-                >
-                  <div v-if="item.A2EventType === 0">離站中</div>
-                  <div v-else-if="item.A2EventType === 1">進站中</div>
-                  <div v-else-if="!item.EstimateTime">未發車</div>
-                  <div v-else>{{ item.EstimateTime }}</div>
+              <div class="row" v-if="stopOfRoute.n.length >= 10">
+                <div class="col-n2">
+                  <StopItem01
+                    :item="item"
+                    v-for="item in stopOfRoute.n.slice(0, Math.round(stopOfRoute.n.length / 2))"
+                    :key="item.StopID"
+                  ></StopItem01>
                 </div>
-                <div class="text flex-1">{{ item.StopName.Zh_tw }}</div>
+                <div class="col-n2">
+                  <StopItem01
+                    :item="item"
+                    v-for="item in stopOfRoute.n.slice(Math.round(stopOfRoute.n.length / 2), stopOfRoute.n.length)"
+                    :key="item.StopID"
+                  ></StopItem01>
+                </div>
+              </div>
+              <div v-else>
+                <StopItem01 :item="item" v-for="item in stopOfRoute.n" :key="item.StopID"></StopItem01>
               </div>
             </template>
           </div>
@@ -96,11 +109,12 @@
 import Header from "@vue/pages/components/Header";
 import Footer from "@vue/pages/components/Footer";
 import LoadComponents from "@vue/pages/components/LoadComponents";
+import StopItem01 from "@vue/pages/components/StopItem01";
 import cityList from "@src/res/cityList";
 import mixins_funs from "@vue/mixins/funs";
 export default {
   mixins: [mixins_funs],
-  components: { Header, Footer, LoadComponents },
+  components: { Header, Footer, LoadComponents, StopItem01 },
   data() {
     return {
       cityInfo: {
@@ -161,11 +175,12 @@ export default {
       )
         .then((response) => response.json())
         .then((jsonData) => {
-          this.stopOfRoute.p = jsonData[0].Stops.map((el) => ({ ...el, EstimateTime: "", A2EventType: "" }));
-          this.stopOfRoute.n = jsonData[1].Stops.map((el) => ({ ...el, EstimateTime: "", A2EventType: "" }));
-
-          console.log(this.stopOfRoute.p);
-          console.log(this.stopOfRoute.n);
+          if (jsonData[0]) {
+            this.stopOfRoute.p = jsonData[0].Stops.map((el) => ({ ...el, EstimateTime: "", A2EventType: "" }));
+          }
+          if (jsonData[1]) {
+            this.stopOfRoute.n = jsonData[1].Stops.map((el) => ({ ...el, EstimateTime: "", A2EventType: "" }));
+          }
           this.updateDynamic();
           this.updateDynamicOn();
         });
@@ -193,10 +208,10 @@ export default {
       )
         .then((response) => response.json())
         .then((jsonData) => {
-          this.stopOfRoute["p"].forEach((stopData) => {
+          this.stopOfRoute.p.forEach((stopData) => {
             stopData.A2EventType = "";
           });
-          this.stopOfRoute["n"].forEach((stopData) => {
+          this.stopOfRoute.n.forEach((stopData) => {
             stopData.A2EventType = "";
           });
           jsonData.forEach((data) => {
@@ -220,10 +235,10 @@ export default {
         .then((jsonData) => {
           const now = Date.now();
 
-          this.stopOfRoute["p"].forEach((stopData) => {
+          this.stopOfRoute.p.forEach((stopData) => {
             stopData.EstimateTime = "";
           });
-          this.stopOfRoute["n"].forEach((stopData) => {
+          this.stopOfRoute.n.forEach((stopData) => {
             stopData.EstimateTime = "";
           });
 
@@ -242,7 +257,6 @@ export default {
         });
     },
     cityInfo_change(val) {
-      //console.log(val);
       this.updateRoute();
       this.routeInfo.value = "";
       this.stopOfRoute.p = [];
@@ -252,6 +266,10 @@ export default {
       this.updateDynamicOff();
     },
     routeInfo_change(val) {
+      this.stopOfRoute.p = [];
+      this.stopOfRoute.n = [];
+      this.departureStopName = "";
+      this.destinationStopName = "";
       //console.log(val);
       this.updateStopOfRoute();
     },
@@ -290,7 +308,7 @@ export default {
   background-color: #f6f7fb;
   .box {
     background-color: #fff;
-    overflow: auto;
+    //overflow: auto;
   }
 }
 .routeItem {
@@ -310,30 +328,6 @@ export default {
       left: 0px;
       bottom: 0px;
       position: absolute;
-    }
-  }
-}
-.stopItem {
-  .text {
-    color: #0d0b0c;
-  }
-  .state {
-    border: 2px solid #0d0b0c;
-    border-radius: 10px;
-    color: #0d0b0c;
-    &.noDeparture {
-      border-color: #acacac;
-      color: #acacac;
-    }
-    &.inDeparture {
-      border-color: transparent;
-      background-color: #ff1d6c;
-      color: #fff;
-    }
-    &.outDeparture {
-      border-color: transparent;
-      background-color: #ffb72c;
-      color: #fff;
     }
   }
 }

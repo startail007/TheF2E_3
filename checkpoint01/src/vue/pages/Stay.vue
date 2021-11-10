@@ -31,6 +31,8 @@
                 dense
                 hide-details
                 @change="typeInfo_change"
+                color="primary"
+                item-color="primary"
               ></v-select>
               <v-select
                 :items="cityInfo.items"
@@ -42,6 +44,8 @@
                 hide-details
                 @change="cityInfo_change"
                 :disabled="typeInfo.value == ''"
+                color="primary"
+                item-color="primary"
               ></v-select>
               <!-- <v-btn color="#FFB72C" id="btn_coordinate" @click="coordinate_click">
                 <div class="icon"></div>
@@ -222,8 +226,9 @@ export default {
         if (type == "") {
           parameter["top"] = 10;
         }
+        parameter["filter"] = "(ZipCode ne null or City ne null)";
         if (search != "") {
-          parameter["filter"] = `contains(Name,'${search}') or contains(Address,'${search}')`;
+          parameter["filter"] += `and (contains(Name,'${search}') or contains(Address,'${search}'))`;
         }
         fetch(`https://ptx.transportdata.tw/MOTC/v2/Tourism/Restaurant${city}?${this.parameterToStr(parameter)}`, {
           headers: { ...authorizationHeader },
@@ -245,8 +250,9 @@ export default {
         if (type == "") {
           parameter["top"] = 10;
         }
+        parameter["filter"] = "(ZipCode ne null or City ne null)";
         if (search != "") {
-          parameter["filter"] = `contains(Name,'${search}') or contains(Address,'${search}')`;
+          parameter["filter"] += `and contains(Name,'${search}') or contains(Address,'${search}')`;
         }
         fetch(`https://ptx.transportdata.tw/MOTC/v2/Tourism/Hotel${city}?${this.parameterToStr(parameter)}`, {
           headers: { ...authorizationHeader },
