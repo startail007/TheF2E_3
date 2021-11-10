@@ -2,10 +2,10 @@
   <v-sheet class="content">
     <Header> </Header>
     <v-main class="main min-h-800">
-      <v-sheet class="section d-flex justify-center align-center pa-2 pa-md-4" id="section01">
-        <v-container class="mb-8">
-          <div class="d-flex justify-center">
-            <div class="d-flex max-w-400">
+      <v-sheet class="section d-flex justify-center align-center pa-2 pa-md-4 pb-0 pb-md-0" id="section01">
+        <v-container class="pb-0">
+          <div class="d-flex justify-center align-center flex-column">
+            <div class="d-flex max-w-400 mb-8">
               <v-select
                 :items="cityInfo.items"
                 v-model="cityInfo.value"
@@ -28,6 +28,18 @@
                 @change="routeInfo_change"
               ></v-select>
             </div>
+            <v-item-group v-if="routeInfo.value !== ''" mandatory v-model="routeIndex" class="d-flex w-100 max-w-400">
+              <v-item class="routeItem flex-1 text-center py-2 text-bold" v-slot="{ active, toggle }">
+                <div @click="toggle">
+                  往 <span class="stopName">{{ destinationStopName }}</span>
+                </div>
+              </v-item>
+              <v-item class="routeItem flex-1 text-center py-2 text-bold" v-slot="{ active, toggle }">
+                <div @click="toggle">
+                  往 <span class="stopName">{{ departureStopName }}</span>
+                </div>
+              </v-item>
+            </v-item-group>
           </div>
         </v-container>
       </v-sheet>
@@ -36,24 +48,46 @@
       </v-sheet>
       <v-sheet class="section d-flex justify-center align-center flex-column pb-8 flex-1" id="section03">
         <v-container>
-          <div v-for="item in stopOfRoute.p" :key="item.StopID">{{ item.StopName.Zh_tw }}</div>
+          <div class="d-flex flex-column flex-wrap ph-md-800 ph-lg-600 box">
+            <template v-if="routeInfo.value === ''">
+              <div class="pa-8 d-flex justify-center text-h6">請選擇公車路線</div>
+            </template>
+            <template v-else-if="routeIndex == 0">
+              <div
+                class="stopItem pa-4 d-flex align-center"
+                v-for="item in stopOfRoute.p"
+                :key="item.StopID"
+                :class="{ noDeparture: !item.EstimateTime }"
+              >
+                <div
+                  class="state min-w-120 mr-4 min-h-40 d-flex justify-center align-center text-bold"
+                  :class="[getStateClass(item)]"
+                >
+                  <div v-if="item.A2EventType === 0">離站中</div>
+                  <div v-else-if="item.A2EventType === 1">進站中</div>
+                  <div v-else-if="!item.EstimateTime">未發車</div>
+                  <div v-else>{{ item.EstimateTime }}</div>
+                </div>
+                <div class="text flex-1">{{ item.StopName.Zh_tw }}</div>
+              </div>
+            </template>
+            <template v-else-if="routeIndex == 1">
+              <div class="stopItem pa-4 d-flex align-center" v-for="item in stopOfRoute.n" :key="item.StopID">
+                <div
+                  class="state min-w-120 mr-4 min-h-40 d-flex justify-center align-center text-bold"
+                  :class="[getStateClass(item)]"
+                >
+                  <div v-if="item.A2EventType === 0">離站中</div>
+                  <div v-else-if="item.A2EventType === 1">進站中</div>
+                  <div v-else-if="!item.EstimateTime">未發車</div>
+                  <div v-else>{{ item.EstimateTime }}</div>
+                </div>
+                <div class="text flex-1">{{ item.StopName.Zh_tw }}</div>
+              </div>
+            </template>
+          </div>
         </v-container>
       </v-sheet>
-      <!-- <div class="titleBar">
-        <v-container class="d-flex justify-center">
-          <div class="word">營業範疇</div>
-        </v-container>
-      </div> -->
-      <!-- <LoadComponents ref="loadComponents">
-        <template v-slot:content="{ components }">
-          <component :is="components.Section01" />
-          <component :is="components.Section02" />
-          <component :is="components.Section03" />
-        </template>
-      </LoadComponents> -->
-      <!-- <div class="d-flex justify-center align-center h-100">
-        <div class="text-h4">建構中...</div>
-      </div> -->
     </v-main>
     <Footer></Footer>
   </v-sheet>
@@ -78,25 +112,21 @@ export default {
         items: [],
       },
       routeList: [],
-      stopOfRoute: {
-        p: [],
-        n: [],
-      },
+      stopOfRoute: { p: [], n: [] },
+      routeIndex: 0,
+      departureStopName: "",
+      destinationStopName: "",
+      dynamicID: 0,
     };
   },
   mounted() {
-    // this.$refs.loadComponents.load([
-    //   { name: "Section01", src: import("@vue/pages/transportation/section/Section01") },
-    //   { name: "Section02", src: import("@vue/pages/transportation/section/Section02") },
-    //   { name: "Section03", src: import("@vue/pages/transportation/section/Section03") },
-    // ]);
     this.updateRoute();
   },
   methods: {
     updateRoute() {
       const authorizationHeader = this.getAuthorizationHeader();
       let city = this.cityInfo.value;
-      const parameter = { top: 30, format: "JSON" };
+      const parameter = { format: "JSON" };
       if (city != "") {
         parameter["filter"] = `City eq '${city}'`;
       }
@@ -105,7 +135,7 @@ export default {
       })
         .then((response) => response.json())
         .then((jsonData) => {
-          console.log(jsonData);
+          //console.log(jsonData);
           this.routeList = jsonData;
           this.routeInfo.items = this.routeList.map((el, index) => {
             return { text: el.TaiwanTripName.Zh_tw, value: index };
@@ -113,10 +143,14 @@ export default {
         });
     },
     updateStopOfRoute() {
+      const routeInfo = this.routeList[this.routeInfo.value];
+      //console.log(routeInfo);
+      this.departureStopName = routeInfo.DepartureStopNameZh;
+      this.destinationStopName = routeInfo.DestinationStopNameZh;
       const authorizationHeader = this.getAuthorizationHeader();
-      let route = this.itemsFindValue(this.routeInfo.items, this.routeInfo.value).text;
-      const parameter = { top: 30, format: "JSON" };
-      console.log(route);
+      const route = this.itemsFindValue(this.routeInfo.items, this.routeInfo.value).text;
+      const parameter = { format: "JSON" };
+      //console.log(route);
       fetch(
         `https://ptx.transportdata.tw/MOTC/v2/Tourism/Bus/StopOfRoute/TaiwanTrip/${route}?${this.parameterToStr(
           parameter
@@ -127,9 +161,84 @@ export default {
       )
         .then((response) => response.json())
         .then((jsonData) => {
-          this.stopOfRoute.p = jsonData[0].Stops;
-          this.stopOfRoute.n = jsonData[1].Stops;
+          this.stopOfRoute.p = jsonData[0].Stops.map((el) => ({ ...el, EstimateTime: "", A2EventType: "" }));
+          this.stopOfRoute.n = jsonData[1].Stops.map((el) => ({ ...el, EstimateTime: "", A2EventType: "" }));
+
           console.log(this.stopOfRoute.p);
+          console.log(this.stopOfRoute.n);
+          this.updateDynamic();
+          this.updateDynamicOn();
+        });
+    },
+    updateDynamicOn() {
+      clearInterval(this.dynamicID);
+      this.dynamicID = setInterval(() => {
+        this.updateDynamic();
+      }, 5000);
+    },
+    updateDynamicOff() {
+      clearInterval(this.dynamicID);
+    },
+    updateDynamic() {
+      const authorizationHeader = this.getAuthorizationHeader();
+      const route = this.itemsFindValue(this.routeInfo.items, this.routeInfo.value).text;
+      const parameter = { format: "JSON" };
+      fetch(
+        `https://ptx.transportdata.tw/MOTC/v2/Tourism/Bus/RealTimeNearStop/TaiwanTrip/${route}?${this.parameterToStr(
+          parameter
+        )}`,
+        {
+          headers: { ...authorizationHeader },
+        }
+      )
+        .then((response) => response.json())
+        .then((jsonData) => {
+          this.stopOfRoute["p"].forEach((stopData) => {
+            stopData.A2EventType = "";
+          });
+          this.stopOfRoute["n"].forEach((stopData) => {
+            stopData.A2EventType = "";
+          });
+          jsonData.forEach((data) => {
+            this.stopOfRoute[data.Direction ? "n" : "p"].forEach((stopData) => {
+              if (stopData.StopID == data.StopID) {
+                stopData.A2EventType = data.A2EventType;
+              }
+            });
+          });
+        });
+
+      fetch(
+        `https://ptx.transportdata.tw/MOTC/v2/Tourism/Bus/EstimatedTimeOfArrival/TaiwanTrip/${route}?${this.parameterToStr(
+          parameter
+        )}`,
+        {
+          headers: { ...authorizationHeader },
+        }
+      )
+        .then((response) => response.json())
+        .then((jsonData) => {
+          const now = Date.now();
+
+          this.stopOfRoute["p"].forEach((stopData) => {
+            stopData.EstimateTime = "";
+          });
+          this.stopOfRoute["n"].forEach((stopData) => {
+            stopData.EstimateTime = "";
+          });
+
+          jsonData.forEach((data) => {
+            this.stopOfRoute[data.Direction ? "n" : "p"].forEach((stopData) => {
+              if (stopData.StopID == data.StopID) {
+                if (data.EstimateTime) {
+                  const EstimateTime = new Date(now + data.EstimateTime * 1000);
+                  stopData.EstimateTime = EstimateTime.toTimeString().substr(0, 5);
+                } else {
+                  stopData.EstimateTime = "";
+                }
+              }
+            });
+          });
         });
     },
     cityInfo_change(val) {
@@ -138,13 +247,30 @@ export default {
       this.routeInfo.value = "";
       this.stopOfRoute.p = [];
       this.stopOfRoute.n = [];
+      this.departureStopName = "";
+      this.destinationStopName = "";
+      this.updateDynamicOff();
     },
     routeInfo_change(val) {
       //console.log(val);
       this.updateStopOfRoute();
     },
+    getStateClass(item) {
+      if (item.A2EventType === 0) {
+        return "outDeparture";
+      } else if (item.A2EventType === 1) {
+        return "inDeparture";
+      } else if (!item.EstimateTime) {
+        return "noDeparture";
+      } else {
+        return "";
+      }
+    },
   },
   computed: {},
+  beforeDestroy() {
+    this.updateDynamicOff();
+  },
 };
 </script>
 <style lang="scss" scoped>
@@ -162,6 +288,54 @@ export default {
 }
 .section#section03 {
   background-color: #f6f7fb;
+  .box {
+    background-color: #fff;
+    overflow: auto;
+  }
+}
+.routeItem {
+  position: relative;
+  .stopName {
+    color: #ff1d6c;
+  }
+  &:not(.v-item--active) {
+    cursor: pointer;
+  }
+  &.v-item--active {
+    &::after {
+      content: "";
+      width: 100%;
+      height: 3px;
+      background-color: #ff1d6c;
+      left: 0px;
+      bottom: 0px;
+      position: absolute;
+    }
+  }
+}
+.stopItem {
+  .text {
+    color: #0d0b0c;
+  }
+  .state {
+    border: 2px solid #0d0b0c;
+    border-radius: 10px;
+    color: #0d0b0c;
+    &.noDeparture {
+      border-color: #acacac;
+      color: #acacac;
+    }
+    &.inDeparture {
+      border-color: transparent;
+      background-color: #ff1d6c;
+      color: #fff;
+    }
+    &.outDeparture {
+      border-color: transparent;
+      background-color: #ffb72c;
+      color: #fff;
+    }
+  }
 }
 @media (min-width: get-breakpoints("sm")) {
 }

@@ -54,103 +54,102 @@
         <div class="w-100 mb-4" id="card_shadow01"></div>
         <div class="text_search text-h6 text-bold" v-if="search">搜尋關鍵字 - {{ search }}</div>
       </v-sheet>
-      <v-sheet
-        class="section d-flex justify-center align-center flex-column pb-8"
-        id="section03"
-        v-if="typeInfo.value == ''"
-      >
-        <v-container id="section03_1" class="mb-8">
-          <div class="mb-4 title d-flex align-center">
-            <div class="icon mr-2"></div>
-            <div class="text-h6 text-bold">熱門美食</div>
-          </div>
-          <div>
-            <div class="row items">
-              <div
-                v-for="item in data.delicacy.slice(0, delicacyCount)"
-                class="col-n1 col-sm-n2 col-md-n3 col-lg-n4 col-xl-n5 item mb-4"
-                :key="item.ID"
-              >
-                <Card02 :item="item"></Card02>
+      <v-sheet class="section d-flex justify-center align-center flex-column pb-8" id="section03">
+        <template v-if="typeInfo.value == ''">
+          <NoData v-if="!data.delicacy.length && !data.stay.length"></NoData>
+          <template v-else>
+            <v-container id="section03_1" class="mb-8" v-if="data.delicacy.length">
+              <div class="mb-4 title d-flex align-center">
+                <div class="icon mr-2"></div>
+                <div class="text-h6 text-bold">熱門美食</div>
+              </div>
+              <div>
+                <div class="row items">
+                  <div
+                    v-for="item in data.delicacy.slice(0, delicacyCount)"
+                    class="col-n1 col-sm-n2 col-md-n3 col-lg-n4 col-xl-n5 item mb-4"
+                    :key="item.ID"
+                  >
+                    <Card02 :item="item"></Card02>
+                  </div>
+                </div>
+              </div>
+            </v-container>
+            <v-container id="section03_2" class="mb-8" v-if="data.stay.length">
+              <div class="mb-4 title d-flex align-center">
+                <div class="icon mr-2"></div>
+                <div class="text-h6 text-bold">推薦住宿</div>
+              </div>
+              <div>
+                <div class="row items">
+                  <div
+                    v-for="item in data.stay.slice(0, stayCount)"
+                    class="col-n1 col-sm-n2 col-md-n3 col-lg-n4 col-xl-n5 item mb-4"
+                    :key="item.ID"
+                  >
+                    <Card02 :item="item"></Card02>
+                  </div>
+                </div>
+              </div>
+            </v-container>
+          </template>
+        </template>
+        <template v-if="typeInfo.value == 'delicacy'">
+          <NoData v-if="!data.delicacy.length"></NoData>
+          <v-container id="section03_1" class="mb-8" v-else>
+            <div class="mb-4 title d-flex align-center">
+              <div class="icon mr-2"></div>
+              <div class="text-h6 text-bold">美食 - {{ itemsFindValue(cityInfo.items, cityInfo.value).text }}</div>
+            </div>
+            <div>
+              <div class="row items">
+                <div
+                  v-for="item in data.delicacy.slice(
+                    (delicacy.pageIndex - 1) * delicacy.pageItemMax,
+                    (delicacy.pageIndex - 1) * delicacy.pageItemMax + delicacy.pageItemMax
+                  )"
+                  class="col-n1 col-sm-n2 col-md-n3 col-lg-n4 col-xl-n5 item mb-4"
+                  :key="item.ID"
+                >
+                  <Card02 :item="item"></Card02>
+                </div>
+              </div>
+              <div class="mt-8" v-if="delicacy.pageTotal">
+                <v-pagination
+                  v-model="delicacy.pageIndex"
+                  :length="delicacy.pageTotal"
+                  :total-visible="7"
+                ></v-pagination>
               </div>
             </div>
-          </div>
-        </v-container>
-        <v-container id="section03_2" class="mb-8">
-          <div class="mb-4 title d-flex align-center">
-            <div class="icon mr-2"></div>
-            <div class="text-h6 text-bold">推薦住宿</div>
-          </div>
-          <div>
-            <div class="row items">
-              <div
-                v-for="item in data.stay.slice(0, stayCount)"
-                class="col-n1 col-sm-n2 col-md-n3 col-lg-n4 col-xl-n5 item mb-4"
-                :key="item.ID"
-              >
-                <Card02 :item="item"></Card02>
+          </v-container>
+        </template>
+        <template v-else-if="typeInfo.value == 'stay'">
+          <NoData v-if="!data.stay.length"></NoData>
+          <v-container id="section03_2" class="mb-8" v-else>
+            <div class="mb-4 title d-flex align-center">
+              <div class="icon mr-2"></div>
+              <div class="text-h6 text-bold">住宿 - {{ itemsFindValue(cityInfo.items, cityInfo.value).text }}</div>
+            </div>
+            <div>
+              <div class="row items">
+                <div
+                  v-for="item in data.stay.slice(
+                    (stay.pageIndex - 1) * stay.pageItemMax,
+                    (stay.pageIndex - 1) * stay.pageItemMax + stay.pageItemMax
+                  )"
+                  class="col-n1 col-sm-n2 col-md-n3 col-lg-n4 col-xl-n5 item mb-4"
+                  :key="item.ID"
+                >
+                  <Card02 :item="item"></Card02>
+                </div>
+              </div>
+              <div class="mt-8" v-if="stay.pageTotal">
+                <v-pagination v-model="stay.pageIndex" :length="stay.pageTotal" :total-visible="7"></v-pagination>
               </div>
             </div>
-          </div>
-        </v-container>
-      </v-sheet>
-      <v-sheet
-        class="section d-flex justify-center align-center flex-column pb-8"
-        id="section03"
-        v-if="typeInfo.value == 'delicacy'"
-      >
-        <v-container id="section03_1" class="mb-8">
-          <div class="mb-4 title d-flex align-center">
-            <div class="icon mr-2"></div>
-            <div class="text-h6 text-bold">美食 - {{ itemsFindValue(cityInfo.items, cityInfo.value).text }}</div>
-          </div>
-          <div>
-            <div class="row items">
-              <div
-                v-for="item in data.delicacy.slice(
-                  (delicacy.pageIndex - 1) * delicacy.pageItemMax,
-                  (delicacy.pageIndex - 1) * delicacy.pageItemMax + delicacy.pageItemMax
-                )"
-                class="col-n1 col-sm-n2 col-md-n3 col-lg-n4 col-xl-n5 item mb-4"
-                :key="item.ID"
-              >
-                <Card02 :item="item"></Card02>
-              </div>
-            </div>
-            <div class="mt-8" v-if="delicacy.pageTotal">
-              <v-pagination v-model="delicacy.pageIndex" :length="delicacy.pageTotal" :total-visible="7"></v-pagination>
-            </div>
-          </div>
-        </v-container>
-      </v-sheet>
-      <v-sheet
-        class="section d-flex justify-center align-center flex-column pb-8"
-        id="section03"
-        v-else-if="typeInfo.value == 'stay'"
-      >
-        <v-container id="section03_2" class="mb-8">
-          <div class="mb-4 title d-flex align-center">
-            <div class="icon mr-2"></div>
-            <div class="text-h6 text-bold">住宿 - {{ itemsFindValue(cityInfo.items, cityInfo.value).text }}</div>
-          </div>
-          <div>
-            <div class="row items">
-              <div
-                v-for="item in data.stay.slice(
-                  (stay.pageIndex - 1) * stay.pageItemMax,
-                  (stay.pageIndex - 1) * stay.pageItemMax + stay.pageItemMax
-                )"
-                class="col-n1 col-sm-n2 col-md-n3 col-lg-n4 col-xl-n5 item mb-4"
-                :key="item.ID"
-              >
-                <Card02 :item="item"></Card02>
-              </div>
-            </div>
-            <div class="mt-8" v-if="stay.pageTotal">
-              <v-pagination v-model="stay.pageIndex" :length="stay.pageTotal" :total-visible="7"></v-pagination>
-            </div>
-          </div>
-        </v-container>
+          </v-container>
+        </template>
       </v-sheet>
     </v-main>
     <Footer></Footer>
@@ -159,6 +158,7 @@
 <script>
 import Header from "@vue/pages/components/Header";
 import Footer from "@vue/pages/components/Footer";
+import NoData from "@vue/pages/components/NoData";
 import Card01 from "@vue/pages/components/Card01";
 import Card02 from "@vue/pages/components/Card02";
 import cityList from "@src/res/cityList";
@@ -167,7 +167,7 @@ import mixins_funs from "@vue/mixins/funs";
 
 export default {
   mixins: [mixins_funs],
-  components: { Header, Footer, Card01, Card02 },
+  components: { Header, Footer, Card01, Card02, NoData },
   data() {
     return {
       temp_search: "",
