@@ -13,7 +13,7 @@
     <v-card-text class="pa-0 mb-2">
       <div class="d-flex">
         <div class="anchorIcon mr-2"></div>
-        <div class="address">{{ item.Address }}</div>
+        <div class="zipCode">{{ item.ZipCodeChinese }}</div>
       </div>
     </v-card-text>
   </v-card>
@@ -73,7 +73,7 @@ export default {
   .city {
     color: #0d0b0c;
   }
-  .address {
+  .zipCode {
     color: #007350;
   }
 }

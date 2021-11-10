@@ -1,6 +1,15 @@
 import jsSHA from "jssha";
+import zipCodeList from "@src/res/zipCodeList";
 export default {
   methods: {
+    zipCodeToChinese(zipCode) {
+      const obj = zipCodeList.find((el) => el.zipCode === zipCode);
+      if (obj) {
+        return obj.city + " " + obj.township;
+      } else {
+        return;
+      }
+    },
     chooseone(a, b) {
       return a ?? b;
     },

@@ -62,7 +62,7 @@
 </template>
 <script>
 import mixins_funs from "@vue/mixins/funs";
-import placeholder from "@img/placeholder.jpg";
+import placeholder from "@img/placeholderMax.jpg";
 export default {
   mixins: [mixins_funs],
   components: {},

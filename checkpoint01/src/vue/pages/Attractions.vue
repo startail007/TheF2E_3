@@ -3,7 +3,7 @@
     <Header> </Header>
     <v-main class="main min-h-800">
       <v-sheet class="section d-flex justify-center align-center pa-2 pa-md-4" id="section01">
-        <v-responsive :aspect-ratio="1226 / 491" class="box d-flex justify-center align-center max-h-491 pa-2 pa-md-4">
+        <v-responsive :aspect-ratio="1226 / 491" class="box d-flex justify-center align-center max-h-490 pa-2 pa-md-4">
           <div class="boxContent d-flex align-center flex-column">
             <v-responsive :aspect-ratio="487 / 69" class="centerLogo"> </v-responsive>
             <div class="my-2 align-self-start text-body-2 white--text">台北、台中、台南、屏東、宜蘭……遊遍台灣</div>
@@ -234,7 +234,9 @@ export default {
         })
           .then((response) => response.json())
           .then((jsonData) => {
-            this.data.activity = jsonData;
+            this.data.activity = jsonData.map((el) => {
+              return { ...el, ZipCodeChinese: this.zipCodeToChinese(el.ZipCode) ?? el.City };
+            });
             //console.log(jsonData);
             if (this.typeInfo.value != "") {
               this.activity.pageIndex = 1;
@@ -257,7 +259,9 @@ export default {
         })
           .then((response) => response.json())
           .then((jsonData) => {
-            this.data.scenicspot = jsonData;
+            this.data.scenicspot = jsonData.map((el) => {
+              return { ...el, ZipCodeChinese: this.zipCodeToChinese(el.ZipCode) ?? el.City };
+            });
             //console.log(jsonData);
             if (this.typeInfo.value != "") {
               this.scenicspot.pageIndex = 1;

@@ -174,7 +174,7 @@ export default {
       clearInterval(this.dynamicID);
       this.dynamicID = setInterval(() => {
         this.updateDynamic();
-      }, 5000);
+      }, 15000);
     },
     updateDynamicOff() {
       clearInterval(this.dynamicID);
