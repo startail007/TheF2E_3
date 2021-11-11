@@ -10,7 +10,9 @@
     >
       <v-container class="pa-0 px-md-8 fill-height">
         <div class="d-flex flex-md-column align-center px-4">
-          <img class="logo" :src="logo" />
+          <router-link :to="{ path: '/' }">
+            <img class="logo" :src="logo" />
+          </router-link>
         </div>
         <v-spacer></v-spacer>
         <div>

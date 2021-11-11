@@ -69,6 +69,12 @@ export default {
   letter-spacing: 0.1em;
   color: #90b0b6;
   &.active {
+    .icon {
+      box-shadow: 0px 5px 5px rgba(0, 0, 0, 20%);
+    }
+    .text {
+      text-shadow: 0px 5px 5px rgba(0, 0, 0, 20%);
+    }
   }
   &:hover {
   }
@@ -76,8 +82,11 @@ export default {
     content: none;
   }
   .icon {
-    width: 36px;
-    height: 36px;
+    width: 34px;
+    height: 34px;
+    border-radius: 34px;
+    background-position: center;
+    background-size: contain;
   }
   .text {
     margin-left: 0.25em;
