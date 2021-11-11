@@ -55,14 +55,11 @@
         </v-responsive>
       </v-sheet>
       <v-sheet class="section d-flex justify-center align-center flex-column pb-8" id="section02">
-        <div class="w-100 mb-4" id="card_shadow01"></div>
         <div class="text_search text-h6 text-bold" v-if="search">搜尋關鍵字 - {{ search }}</div>
-      </v-sheet>
-      <v-sheet class="section d-flex justify-center align-center flex-column pb-8" id="section03">
         <template v-if="typeInfo.value == ''">
           <NoData v-if="!data.delicacy.length && !data.stay.length"></NoData>
           <template v-else>
-            <v-container id="section03_1" class="mb-8" v-if="data.delicacy.length">
+            <v-container id="section02_1" class="mb-8" v-if="data.delicacy.length">
               <div class="mb-4 title d-flex align-center">
                 <div class="icon mr-2"></div>
                 <div class="text-h6 text-bold">熱門美食</div>
@@ -79,7 +76,7 @@
                 </div>
               </div>
             </v-container>
-            <v-container id="section03_2" class="mb-8" v-if="data.stay.length">
+            <v-container id="section02_2" class="mb-8" v-if="data.stay.length">
               <div class="mb-4 title d-flex align-center">
                 <div class="icon mr-2"></div>
                 <div class="text-h6 text-bold">推薦住宿</div>
@@ -100,7 +97,7 @@
         </template>
         <template v-if="typeInfo.value == 'delicacy'">
           <NoData v-if="!data.delicacy.length"></NoData>
-          <v-container id="section03_1" class="mb-8" v-else>
+          <v-container id="section02_1" class="mb-8" v-else>
             <div class="mb-4 title d-flex align-center">
               <div class="icon mr-2"></div>
               <div class="text-h6 text-bold">美食 - {{ itemsFindValue(cityInfo.items, cityInfo.value).text }}</div>
@@ -130,7 +127,7 @@
         </template>
         <template v-else-if="typeInfo.value == 'stay'">
           <NoData v-if="!data.stay.length"></NoData>
-          <v-container id="section03_2" class="mb-8" v-else>
+          <v-container id="section02_2" class="mb-8" v-else>
             <div class="mb-4 title d-flex align-center">
               <div class="icon mr-2"></div>
               <div class="text-h6 text-bold">住宿 - {{ itemsFindValue(cityInfo.items, cityInfo.value).text }}</div>
@@ -342,16 +339,16 @@ export default {
       max-width: 487px;
       margin: 0 auto;
       .centerLogo {
-        background-image: url(~@img/stay/centerLogo.png);
+        background-image: url(~@img/centerLogo.png);
         background-position: center;
         background-size: contain;
-        width: 100%;
+        width: 80%;
       }
       #btn_search {
         width: 40px;
         min-width: auto;
         .icon {
-          background-image: url(~@img/stay/btn_search_icon.png);
+          background-image: url(~@img/btn_search_icon.png);
           background-position: center;
           background-size: contain;
           width: 16px;
@@ -362,7 +359,7 @@ export default {
         width: 40px;
         min-width: auto;
         .icon {
-          background-image: url(~@img/stay/btn_coordinate_icon.png);
+          background-image: url(~@img/btn_coordinate_icon.png);
           background-position: center;
           background-size: contain;
           width: 24px;
@@ -372,22 +369,24 @@ export default {
     }
   }
 }
-
 .section#section02 {
   background-color: #f6f7fb;
-  #card_shadow01 {
-    background-image: url(~@img/stay/card_shadow01.png);
+  padding-top: 60px;
+  &::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 20px;
+    left: 0;
+    top: 0%;
+    background-image: url(~@img/card_shadow01.png);
     background-position: center;
     background-size: 100% 100%;
-    height: 40px;
   }
   .text_search {
     color: #ff1d6c;
   }
-}
-.section#section03 {
-  background-color: #f6f7fb;
-  #section03_1 {
+  #section02_1 {
     .title {
       .icon {
         background-image: url(~@img/triangle_icon.png);
@@ -398,7 +397,7 @@ export default {
       }
     }
   }
-  #section03_2 {
+  #section02_2 {
     .title {
       .icon {
         background-image: url(~@img/square_icon.png);

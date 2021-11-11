@@ -1,7 +1,7 @@
 <template>
-  <div class="stopItem pa-4 d-flex align-center" :class="{ noDeparture: !item.EstimateTime }">
+  <div class="stopItem pa-4 d-flex flex-column flex-md-row align-center" :class="{ noDeparture: !item.EstimateTime }">
     <div
-      class="state min-w-120 mr-4 min-h-40 d-flex justify-center align-center text-bold"
+      class="state min-w-120 mr-md-4 min-h-40 d-flex justify-center align-center text-bold"
       :class="[getStateClass(item)]"
     >
       <div v-if="item.A2EventType === 0">離站中</div>

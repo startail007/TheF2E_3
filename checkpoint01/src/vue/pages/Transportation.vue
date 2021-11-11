@@ -47,14 +47,12 @@
           </div>
         </v-container>
       </v-sheet>
-      <v-sheet class="section d-flex justify-center align-center flex-column pb-8" id="section02">
-        <div class="w-100 mb-4" id="card_shadow01"></div>
-      </v-sheet>
-      <v-sheet class="section d-flex justify-center align-center flex-column pb-8 flex-1" id="section03">
+      <v-sheet class="section d-flex justify-center align-center flex-column pb-8 flex-1" id="section02">
         <v-container>
+          <div class="d-flex justify-end mb-2 updataRemind text-bold">*每隔 15 秒自動更新</div>
           <div class="d-flex box min-h-600">
             <template v-if="routeInfo.value === ''">
-              <div class="pa-8 d-flex justify-center text-h6">請選擇公車路線</div>
+              <div class="pa-8 text-h6">請選擇公車路線</div>
             </template>
             <template v-else-if="routeIndex == 0">
               <div class="row" v-if="stopOfRoute.p.length >= 10">
@@ -297,18 +295,33 @@ export default {
 }
 .section#section02 {
   background-color: #f6f7fb;
-  #card_shadow01 {
-    background-image: url(~@img/attractions/card_shadow01.png);
+  padding-top: 60px;
+  &::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 20px;
+    left: 0;
+    top: 0%;
+    background-image: url(~@img/card_shadow01.png);
     background-position: center;
     background-size: 100% 100%;
-    height: 40px;
   }
-}
-.section#section03 {
-  background-color: #f6f7fb;
   .box {
+    position: relative;
     background-color: #fff;
     //overflow: auto;
+    &::after {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 20px;
+      left: 0;
+      top: 100%;
+      background-image: url(~@img/card_shadow04.png);
+      background-position: center;
+      background-size: 100% 100%;
+    }
   }
 }
 .routeItem {
@@ -330,6 +343,9 @@ export default {
       position: absolute;
     }
   }
+}
+.updataRemind {
+  color: #ff1d6c;
 }
 @media (min-width: get-breakpoints("sm")) {
 }

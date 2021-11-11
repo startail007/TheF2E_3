@@ -62,7 +62,7 @@ export default {
     height: 20px;
     left: 0;
     top: 100%;
-    background-image: url(~@img/attractions/card_shadow02.png);
+    background-image: url(~@img/card_shadow02.png);
     background-position: center;
     background-size: 100% 100%;
   }
