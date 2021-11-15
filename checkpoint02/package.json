@@ -1,10 +1,9 @@
 {
   "name": "checkpoint02",
   "version": "1.0.0",
-  "description": "關卡02",
+  "description": "The F2E 自行車道地圖資訊整合網 <關卡02>",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "webpack-dev-server --mode development",
     "build": "webpack --mode production"
   },

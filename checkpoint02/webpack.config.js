@@ -37,7 +37,7 @@ module.exports = {
   devServer: {
     contentBase: path.join(__dirname, "/"),
     compress: true,
-    port: 9009,
+    port: 8888,
     inline: true,
   },
   module: {
@@ -137,7 +137,7 @@ module.exports = {
     new VueLoaderPlugin(),
     new MiniCssExtractPlugin({ filename: "css/[name].[hash].css" }),
     new HtmlWebpackPlugin({
-      title: "關卡02",
+      title: "The F2E 自行車道地圖資訊整合網 <關卡02>",
       template: "./src/index.html",
       filename: "index.html",
       //favicon: path.resolve("./src/favicon.png"),

@@ -37,7 +37,7 @@ module.exports = {
   devServer: {
     contentBase: path.join(__dirname, "/"),
     compress: true,
-    port: 9102,
+    port: 8888,
     inline: true,
   },
   module: {
@@ -158,7 +158,7 @@ module.exports = {
     new VueLoaderPlugin(),
     new MiniCssExtractPlugin({ filename: "css/[name].[hash].css" }),
     new HtmlWebpackPlugin({
-      title: "關卡01",
+      title: "The F2E 台灣旅遊景點導覽 <關卡01>",
       template: "./src/index.html",
       filename: "index.html",
       // favicon: path.resolve("./src/favicon.png"),

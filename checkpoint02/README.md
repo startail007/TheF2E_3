@@ -1,30 +1,34 @@
-# README 撰寫範本
-
 ## 作品說明
 
-The F2E 全台公車動態時刻查詢應用服務...
+The F2E 自行車道地圖資訊整合網
 
 ## 系統說明
 
-專案運行方式是使用 `npm install`、`npm run serve`...
-
-Node.js 版本...
+Node.js 版本 `v14.18.1`
+專案安裝 `npm install`
+專案運行 `npm run dev` >> http://localhost:8888
+專案打包 `npm run build` >> 資料夾 dist
 
 ## 資料夾說明
 
-- views - 畫面放置處
-- controllers
-- modules
-  ...
+- dist - 輸出檔案
+- node_modules - nodejs 模塊
+- src
+  - plugins - js 擴充
+  - res - 資料資源
+  - vue - vue 相關
+    - components - 共用元件
+      - pages - 頁面元件
+        - components - 頁面裡共用元件
 
 ## 使用技術
 
+- Webpack Cli
 - Vue Cli
-- Axios
-  ...
+- Vue Router
+- Vuetify
+- Scss
 
 ## 第三方服務
 
-- Algolia
-
-...
+- google fonts
