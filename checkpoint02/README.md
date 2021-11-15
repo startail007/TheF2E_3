@@ -33,6 +33,6 @@ The F2E 自行車道地圖資訊整合網
 
 - google fonts
 
-## demo
+## 線上 demo
 
 - [連結](https://virtools.github.io/TheF2E_3/checkpoint02/dist)
