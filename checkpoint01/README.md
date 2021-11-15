@@ -36,3 +36,7 @@ The F2E 台灣旅遊景點導覽
 ## 第三方服務
 
 - google fonts
+
+## demo
+
+- [連結](https://virtools.github.io/TheF2E_3/checkpoint01/dist)
