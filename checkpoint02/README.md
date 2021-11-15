@@ -4,10 +4,10 @@ The F2E 自行車道地圖資訊整合網
 
 ## 系統說明
 
-Node.js 版本 `v14.18.1`
-專案安裝 `npm install`
-專案運行 `npm run dev` >> http://localhost:8888
-專案打包 `npm run build` >> 資料夾 dist
+1. Node.js 版本 `v14.18.1`
+2. 專案安裝 `npm install`
+3. 專案運行 `npm run dev` >> http://localhost:8888
+4. 專案打包 `npm run build` >> 資料夾 dist
 
 ## 資料夾說明
 
