@@ -161,7 +161,7 @@ export default {
     },
     view_info(src, type, data) {
       if (type === "geometry") {
-        //console.log(src, data);
+        console.log(src, type, data);
         this.geojson = data;
       }
     },
