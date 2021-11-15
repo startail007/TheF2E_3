@@ -1,7 +1,7 @@
 <template>
-  <div class="footer px-3 py-2">
+  <div class="footer px-3 py-md-2">
     <v-container class="pa-0">
-      <div class="rightsReserved text-center my-2 text-body-2">
+      <div class="rightsReserved text-center my-2 text-caption text-md-body-2">
         © Code: <a href="https://github.com/virtools" target="_blank">Wei</a> / Design:
         <a href="" target="_blank">XX</a>
       </div>

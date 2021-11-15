@@ -26,7 +26,7 @@
       <div class="icon"></div>
       <div class="text">周圍景點</div>
     </v-btn>
-    <v-btn
+    <!-- <v-btn
       depressed
       text
       :to="{ path: '/history' }"
@@ -38,7 +38,7 @@
     >
       <div class="icon"></div>
       <div class="text">歷史紀錄</div>
-    </v-btn>
+    </v-btn> -->
   </div>
 </template>
 <script>

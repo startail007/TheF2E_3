@@ -4,18 +4,17 @@
     <v-main class="main">
       <v-map ref="myMap" :zoom.sync="zoom" :center.sync="center" class="w-100 h-100" :options="options">
         <v-tilelayer :url="url" :attribution="attribution"></v-tilelayer>
-        <v-marker-cluster :options="clusterOptions" @clusterclick="click()" @ready="ready">
+        <!-- <v-marker-cluster :options="clusterOptions" @clusterclick="click()" @ready="ready">
           <v-marker v-for="l in locations" :key="l.id" :lat-lng="l.latLng" :icon="icon">
             <v-popup :content="l.name"></v-popup>
           </v-marker>
-        </v-marker-cluster>
+        </v-marker-cluster> -->
       </v-map>
       <div class="floatBox pointer-events-none">
-        <div class="d-flex justify-end pa-2 pointer-events-none">
-          <v-btn class="mr-2 pointer-events-auto">搜尋這個區域的YouBike</v-btn>
-          <v-btn class="pointer-events-auto">目前位置</v-btn>
-        </div>
-        <router-view class="pointer-events-auto"></router-view>
+        <router-view></router-view>
+      </div>
+      <div class="floatBox pointer-events-none pa-2 d-flex justify-start justify-md-center align-end">
+        <v-btn class="pointer-events-auto" @click="currentPosition_click">目前位置</v-btn>
       </div>
     </v-main>
     <Footer></Footer>
@@ -25,19 +24,20 @@
 import Header from "@vue/pages/components/Header";
 import Footer from "@vue/pages/components/Footer";
 import mixins_funs from "@vue/mixins/funs";
-import cityList from "@src/res/cityList";
-import { Float } from "@js/float";
-import axios from "axios";
-import * as PIXI from "pixi.js";
-import "leaflet-pixi-overlay";
-import L from "leaflet";
-import BezierEasing from "bezier-easing";
-import { uid } from "uid";
-import img_station from "@img/station.png";
+// import cityList from "@src/res/cityList";
+// import { Float } from "@js/float";
+// import axios from "axios";
+// import * as PIXI from "pixi.js";
+// import "leaflet-pixi-overlay";
+// import L from "leaflet";
+// import BezierEasing from "bezier-easing";
+// import { uid } from "uid";
+// import img_station from "@img/station.png";
 
 import { latLng, Icon, icon } from "leaflet";
-import iconUrl from "@img/marker-icon.png";
-import shadowUrl from "@img/marker-shadow.png";
+import markerClusterIconUrl from "@img/marker-cluster-icon.png";
+import markerIconUrl from "@img/marker-icon.png";
+import markerShadowUrl from "@img/marker-shadow.png";
 
 function rand(n) {
   let max = n + 0.1;
@@ -56,11 +56,11 @@ export default {
         text: "Hola " + i,
       });
     }*/
-    let customicon = icon(Object.assign({}, Icon.Default.prototype.options, { iconUrl, shadowUrl }));
+    let customicon = icon(Object.assign({}, Icon.Default.prototype.options, { markerIconUrl, markerShadowUrl }));
     return {
       locations: [],
       icon: customicon,
-      clusterOptions: {},
+      clusterOptions: { chunkedLoading: true },
       zoom: 9,
       center: [22.9, 120.65],
       url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -80,9 +80,27 @@ export default {
         animate: true,
         //attributionControl: false,
       },
+      mapPopupText: {
+        StationName: "名稱",
+        latLng: "經緯度",
+        BikesCapacity: "可容納自行車總數",
+        ServiceType: "服務類型",
+      },
     };
   },
   mounted() {
+    const markers = L.markerClusterGroup({
+      iconCreateFunction(cluster) {
+        const markers = cluster.getAllChildMarkers();
+        return L.divIcon({
+          html: `<div class="text">${markers.length}</div>`,
+          className: "mycluster",
+          iconSize: L.point(40, 40),
+        });
+      },
+    });
+    this.map.addLayer(markers);
+
     const authorizationHeader = this.getAuthorizationHeader();
     const p = [];
     const citys = [
@@ -109,20 +127,62 @@ export default {
           .then((jsonData) => jsonData)
       );
     });
+    const getPopupText = (info) => {
+      let s = "";
+      if (info) {
+        for (let key in this.mapPopupText) {
+          s += `<tr><td class="pa-1">${this.mapPopupText[key]}</td><td class="pa-1">${info[key] ?? ""}</td></tr>`;
+        }
+        s = `<table><tbody>${s}</tbody></table>`;
+      }
+      return s;
+    };
     Promise.all(p).then((data) => {
       this.locations = data.flat().map((el) => {
         return {
           id: el.StationUID,
           latLng: [el.StationPosition.PositionLat, el.StationPosition.PositionLon],
-          name: el.StationName.Zh_tw,
+          StationName: el.StationName.Zh_tw.split("_")[1],
+          BikesCapacity: el.BikesCapacity,
+          ServiceType: el.ServiceType === 1 ? "YouBike1.0" : "YouBike2.0",
         };
       });
-      console.log(this.locations);
+      const stationIcon = L.icon({
+        iconUrl: markerIconUrl,
+        shadowUrl: markerShadowUrl,
+        iconSize: [25, 41],
+        shadowSize: [41, 41],
+        iconAnchor: [12.5, 41],
+        shadowAnchor: [12.5, 41],
+        popupAnchor: [0, -32],
+      });
+      const markerList = this.locations.map((item) =>
+        L.marker(new L.LatLng(item.latLng[0], item.latLng[1]), { icon: stationIcon }).bindPopup(getPopupText(item))
+      );
+      markers.addLayers(markerList);
     });
   },
   methods: {
-    click: (e) => console.log("clusterclick", e),
-    ready: (e) => console.log("ready", e),
+    click(e) {
+      console.log("clusterclick", e);
+    },
+    ready(e) {
+      console.log("ready", e);
+    },
+    do_something(lat, lng) {
+      this.map.setView([lat, lng], 16);
+    },
+    currentPosition_click() {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const coords = pos.coords;
+          this.do_something(coords.latitude, coords.longitude);
+        },
+        (err) => {
+          //console.log(err);
+        }
+      );
+    },
   },
   computed: {
     map() {
@@ -167,6 +227,24 @@ export default {
   //filter: brightness(1) invert(1) contrast(0.7) hue-rotate(200deg) saturate(0.1);
   //filter: contrast(0.9) brightness(1.2) saturate(0);
   //filter: contrast(1.1) saturate(0.75);
+}
+::v-deep {
+  .mycluster {
+    // background-color: brown;
+    background-color: #056969;
+    background-image: url("~@img/marker-cluster-icon.png");
+    border-radius: 40px;
+    .text {
+      position: absolute;
+      color: #fff;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 3px;
+    }
+  }
+  .leaflet-popup-content {
+    white-space: nowrap;
+  }
 }
 @media (min-width: get-breakpoints("sm")) {
 }
