@@ -41,7 +41,7 @@ export default {
       let s = "";
       for (let key in parameter) {
         if (parameter[key]) {
-          s += `${s ? "&" : ""}$${key}=${parameter[key]}`;
+          s += `${s ? "&" : ""}${key}=${parameter[key]}`;
         }
       }
       return s;

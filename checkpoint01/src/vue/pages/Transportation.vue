@@ -110,6 +110,7 @@ import LoadComponents from "@vue/pages/components/LoadComponents";
 import StopItem01 from "@vue/pages/components/StopItem01";
 import cityList from "@src/res/cityList";
 import mixins_funs from "@vue/mixins/funs";
+import { o } from "odata";
 export default {
   mixins: [mixins_funs],
   components: { Header, Footer, LoadComponents, StopItem01 },
@@ -138,14 +139,16 @@ export default {
     updateRoute() {
       const authorizationHeader = this.getAuthorizationHeader();
       let city = this.cityInfo.value;
-      const parameter = { format: "JSON" };
+      const parameter = { $format: "JSON" };
       if (city != "") {
-        parameter["filter"] = `City eq '${city}'`;
+        parameter["$filter"] = `City eq '${city}'`;
       }
-      fetch(`https://ptx.transportdata.tw/MOTC/v2/Tourism/Bus/Route/TaiwanTrip?${this.parameterToStr(parameter)}`, {
+
+      o(`https://ptx.transportdata.tw/MOTC/v2/Tourism/Bus/Route/TaiwanTrip/`, {
         headers: { ...authorizationHeader },
       })
-        .then((response) => response.json())
+        .get()
+        .query(parameter)
         .then((jsonData) => {
           //console.log(jsonData);
           this.routeList = jsonData;
@@ -161,17 +164,12 @@ export default {
       this.destinationStopName = routeInfo.DestinationStopNameZh;
       const authorizationHeader = this.getAuthorizationHeader();
       const route = this.itemsFindValue(this.routeInfo.items, this.routeInfo.value).text;
-      const parameter = { format: "JSON" };
-      //console.log(route);
-      fetch(
-        `https://ptx.transportdata.tw/MOTC/v2/Tourism/Bus/StopOfRoute/TaiwanTrip/${route}?${this.parameterToStr(
-          parameter
-        )}`,
-        {
-          headers: { ...authorizationHeader },
-        }
-      )
-        .then((response) => response.json())
+      const parameter = { $format: "JSON" };
+      o(`https://ptx.transportdata.tw/MOTC/v2/Tourism/Bus/StopOfRoute/TaiwanTrip/`, {
+        headers: { ...authorizationHeader },
+      })
+        .get(route)
+        .query(parameter)
         .then((jsonData) => {
           if (jsonData[0]) {
             this.stopOfRoute.p = jsonData[0].Stops.map((el) => ({ ...el, EstimateTime: "", A2EventType: "" }));
@@ -195,16 +193,13 @@ export default {
     updateDynamic() {
       const authorizationHeader = this.getAuthorizationHeader();
       const route = this.itemsFindValue(this.routeInfo.items, this.routeInfo.value).text;
-      const parameter = { format: "JSON" };
-      fetch(
-        `https://ptx.transportdata.tw/MOTC/v2/Tourism/Bus/RealTimeNearStop/TaiwanTrip/${route}?${this.parameterToStr(
-          parameter
-        )}`,
-        {
-          headers: { ...authorizationHeader },
-        }
-      )
-        .then((response) => response.json())
+      const parameter = { $format: "JSON" };
+
+      o(`https://ptx.transportdata.tw/MOTC/v2/Tourism/Bus/RealTimeNearStop/TaiwanTrip/`, {
+        headers: { ...authorizationHeader },
+      })
+        .get(route)
+        .query(parameter)
         .then((jsonData) => {
           this.stopOfRoute.p.forEach((stopData) => {
             stopData.A2EventType = "";
@@ -221,15 +216,11 @@ export default {
           });
         });
 
-      fetch(
-        `https://ptx.transportdata.tw/MOTC/v2/Tourism/Bus/EstimatedTimeOfArrival/TaiwanTrip/${route}?${this.parameterToStr(
-          parameter
-        )}`,
-        {
-          headers: { ...authorizationHeader },
-        }
-      )
-        .then((response) => response.json())
+      o(`https://ptx.transportdata.tw/MOTC/v2/Tourism/Bus/EstimatedTimeOfArrival/TaiwanTrip/`, {
+        headers: { ...authorizationHeader },
+      })
+        .get(route)
+        .query(parameter)
         .then((jsonData) => {
           const now = Date.now();
 

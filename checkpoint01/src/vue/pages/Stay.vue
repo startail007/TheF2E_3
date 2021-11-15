@@ -165,7 +165,7 @@ import Card02 from "@vue/pages/components/Card02";
 import cityList from "@src/res/cityList";
 import placeholder from "@img/placeholder.jpg";
 import mixins_funs from "@vue/mixins/funs";
-
+import { o } from "odata";
 export default {
   mixins: [mixins_funs],
   components: { Header, Footer, Card01, Card02, NoData },
@@ -219,18 +219,19 @@ export default {
       }
 
       if (type == "" || type == "delicacy") {
-        const parameter = { orderby: "SrcUpdateTime asc", format: "JSON" };
+        const parameter = { $orderby: "SrcUpdateTime asc", $format: "JSON" };
         if (type == "") {
-          parameter["top"] = 10;
+          parameter["$top"] = 10;
         }
-        parameter["filter"] = "(ZipCode ne null or City ne null)";
+        parameter["$filter"] = "(ZipCode ne null or City ne null)";
         if (search != "") {
-          parameter["filter"] += `and (contains(Name,'${search}') or contains(Address,'${search}'))`;
+          parameter["$filter"] += `and (contains(Name,'${search}') or contains(Address,'${search}'))`;
         }
-        fetch(`https://ptx.transportdata.tw/MOTC/v2/Tourism/Restaurant${city}?${this.parameterToStr(parameter)}`, {
+        o(`https://ptx.transportdata.tw/MOTC/v2/Tourism/Restaurant/`, {
           headers: { ...authorizationHeader },
         })
-          .then((response) => response.json())
+          .get(city)
+          .query(parameter)
           .then((jsonData) => {
             this.data.delicacy = jsonData.map((el) => {
               return { ...el, ZipCodeChinese: this.zipCodeToChinese(el.ZipCode) ?? el.City };
@@ -243,18 +244,19 @@ export default {
           });
       }
       if (type == "" || type == "stay") {
-        const parameter = { orderby: "SrcUpdateTime asc", format: "JSON" };
+        const parameter = { $orderby: "SrcUpdateTime asc", $format: "JSON" };
         if (type == "") {
-          parameter["top"] = 10;
+          parameter["$top"] = 10;
         }
-        parameter["filter"] = "(ZipCode ne null or City ne null)";
+        parameter["$filter"] = "(ZipCode ne null or City ne null)";
         if (search != "") {
-          parameter["filter"] += `and contains(Name,'${search}') or contains(Address,'${search}')`;
+          parameter["$filter"] += `and contains(Name,'${search}') or contains(Address,'${search}')`;
         }
-        fetch(`https://ptx.transportdata.tw/MOTC/v2/Tourism/Hotel${city}?${this.parameterToStr(parameter)}`, {
+        o(`https://ptx.transportdata.tw/MOTC/v2/Tourism/Hotel/`, {
           headers: { ...authorizationHeader },
         })
-          .then((response) => response.json())
+          .get(city)
+          .query(parameter)
           .then((jsonData) => {
             this.data.stay = jsonData.map((el) => {
               return { ...el, ZipCodeChinese: this.zipCodeToChinese(el.ZipCode) ?? el.City };

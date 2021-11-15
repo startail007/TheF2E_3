@@ -18,8 +18,7 @@
             <v-select
               :items="cityInfo.items"
               v-model="cityInfo.value"
-              class="flex-1"
-              label="不分縣市"
+              label="選擇縣市"
               solo
               dense
               hide-details
@@ -27,46 +26,47 @@
               color="primary"
               item-color="primary"
             ></v-select>
+            <v-select
+              :items="townInfo.items"
+              v-model="townInfo.value"
+              class="mt-2"
+              label="選擇鄉鎮市區"
+              solo
+              dense
+              hide-details
+              @change="townInfo_change"
+              color="primary"
+              item-color="primary"
+            ></v-select>
             <div class="d-flex justify-end mt-2">
-              <v-btn>搜尋</v-btn>
+              <v-btn @click="search_click">搜尋</v-btn>
             </div>
           </div>
           <div class="searchResults flex-1 pa-2">
-            <div class="mt-2" v-for="key in 100" :key="key">XXXXXX</div>
+            <v-card v-for="item in RouteList" :key="item.RouteName" flat @click="route_click(item)">
+              <v-card-title>{{ item.RouteName }}</v-card-title>
+              <v-card-text>
+                <div class="d-flex">
+                  <div>{{ item.RoadSectionEnd }}</div>
+                  <div class="mx-2">>>></div>
+                  <div>{{ item.RoadSectionStart }}</div>
+                </div>
+              </v-card-text>
+            </v-card>
           </div>
         </div>
       </div>
     </div>
-    <!-- <div class="h-100">
-      <v-expansion-panels :value="0" class="w-100 bicycleBox max-w-300 pointer-events-auto">
-        <v-expansion-panel>
-          <v-expansion-panel-header>自行車路線列表</v-expansion-panel-header>
-          <v-expansion-panel-content>
-            <v-select
-              :items="cityInfo.items"
-              v-model="cityInfo.value"
-              class="flex-1"
-              label="不分縣市"
-              solo
-              dense
-              hide-details
-              @change="cityInfo_change"
-              color="primary"
-              item-color="primary"
-            ></v-select>
-            <div class="d-flex justify-end mt-2">
-              <v-btn>搜尋</v-btn>
-            </div>
-            <div class="mt-2" v-for="key in 100" :key="key">XXXXXX</div>
-          </v-expansion-panel-content>
-        </v-expansion-panel>
-      </v-expansion-panels>
-    </div> -->
   </div>
 </template>
 <script>
 import cityList from "@src/res/cityList";
+import zipCodeList from "@src/res/zipCodeList";
+import mixins_funs from "@vue/mixins/funs";
+import { o } from "odata";
+import * as wkt from "wkt";
 export default {
+  mixins: [mixins_funs],
   components: {},
   props: {},
   watch: {},
@@ -75,14 +75,49 @@ export default {
       menu: true,
       cityInfo: {
         value: "",
-        items: [{ text: "不分縣市", value: "" }, ...cityList],
+        items: cityList,
       },
+      townInfo: {
+        value: "",
+        items: [],
+      },
+      RouteList: [],
     };
   },
   mounted() {},
   beforeDestroy() {},
   methods: {
-    cityInfo_change() {},
+    cityInfo_change(value) {
+      const cityObj = this.itemsFindValue(this.cityInfo.items, value);
+      const zipCodeFilterList = zipCodeList
+        .filter((el) => el.city === cityObj.text)
+        .map((el) => ({ text: el.township, value: el.zipCode }));
+      this.townInfo.value = "";
+      this.townInfo.items = zipCodeFilterList;
+      console.log(zipCodeFilterList);
+    },
+    townInfo_change(value) {},
+    search_click() {
+      const authorizationHeader = this.getAuthorizationHeader();
+      const parameter = { $format: "JSON" };
+      parameter["$filter"] = "RoadSectionEnd ne null and RoadSectionStart ne null and Geometry ne null";
+      if (this.townInfo.value) {
+        const townObj = this.itemsFindValue(this.townInfo.items, this.townInfo.value);
+        parameter["$filter"] += ` and Town eq '${townObj.text}'`;
+      }
+      o(`https://ptx.transportdata.tw/MOTC/v2/Cycling/Shape/`, {
+        headers: { ...authorizationHeader },
+      })
+        .get(this.cityInfo.value)
+        .query(parameter)
+        .then((jsonData) => {
+          console.log(jsonData);
+          this.RouteList = jsonData;
+        });
+    },
+    route_click(item) {
+      this.$emit("info", this, "geometry", wkt.parse(item.Geometry));
+    },
   },
   computed: {},
 };

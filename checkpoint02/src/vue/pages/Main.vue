@@ -9,9 +9,10 @@
             <v-popup :content="l.name"></v-popup>
           </v-marker>
         </v-marker-cluster> -->
+        <v-geojson :geojson="geojson"></v-geojson>
       </v-map>
       <div class="floatBox pointer-events-none">
-        <router-view></router-view>
+        <router-view @info="view_info"></router-view>
       </div>
       <div class="floatBox pointer-events-none pa-2 d-flex justify-start justify-md-center align-end">
         <v-btn class="pointer-events-auto" @click="currentPosition_click">目前位置</v-btn>
@@ -24,43 +25,17 @@
 import Header from "@vue/pages/components/Header";
 import Footer from "@vue/pages/components/Footer";
 import mixins_funs from "@vue/mixins/funs";
-// import cityList from "@src/res/cityList";
-// import { Float } from "@js/float";
-// import axios from "axios";
-// import * as PIXI from "pixi.js";
-// import "leaflet-pixi-overlay";
-// import L from "leaflet";
-// import BezierEasing from "bezier-easing";
-// import { uid } from "uid";
-// import img_station from "@img/station.png";
-
 import { latLng, Icon, icon } from "leaflet";
-import markerClusterIconUrl from "@img/marker-cluster-icon.png";
 import markerIconUrl from "@img/marker-icon.png";
 import markerShadowUrl from "@img/marker-shadow.png";
+import { o } from "odata";
 
-function rand(n) {
-  let max = n + 0.1;
-  let min = n - 0.1;
-  return Math.random() * (max - min) + min;
-}
 export default {
   mixins: [mixins_funs],
   components: { Header, Footer },
   data() {
-    /*let locations = [];
-    for (let i = 0; i < 100; i++) {
-      locations.push({
-        id: i,
-        latlng: latLng(rand(22.9), rand(120.65)),
-        text: "Hola " + i,
-      });
-    }*/
-    let customicon = icon(Object.assign({}, Icon.Default.prototype.options, { markerIconUrl, markerShadowUrl }));
     return {
-      locations: [],
-      icon: customicon,
-      clusterOptions: { chunkedLoading: true },
+      geojson: null,
       zoom: 9,
       center: [22.9, 120.65],
       url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -118,12 +93,13 @@ export default {
     ];
     citys.forEach((el) => {
       let city = el;
-      const parameter = { format: "JSON" };
+      const parameter = { $format: "JSON" };
       p.push(
-        fetch(`https://ptx.transportdata.tw/MOTC/v2/Bike/Station/${city}?${this.parameterToStr(parameter)}`, {
+        o(`https://ptx.transportdata.tw/MOTC/v2/Bike/Station/`, {
           headers: { ...authorizationHeader },
         })
-          .then((response) => response.json())
+          .get(city)
+          .query(parameter)
           .then((jsonData) => jsonData)
       );
     });
@@ -182,6 +158,12 @@ export default {
           //console.log(err);
         }
       );
+    },
+    view_info(src, type, data) {
+      if (type === "geometry") {
+        //console.log(src, data);
+        this.geojson = data;
+      }
     },
   },
   computed: {

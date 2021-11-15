@@ -27,14 +27,14 @@ Vue.component("v-tilelayer", Vue2Leaflet.LTileLayer);
 Vue.component("v-icondefault", Vue2Leaflet.LIconDefault);
 Vue.component("v-marker", Vue2Leaflet.LMarker);
 Vue.component("v-popup", Vue2Leaflet.LPopup);
+Vue.component("v-geojson", Vue2Leaflet.LGeoJson);
 // Vue.component("v-marker-cluster", Vue2LeafletMarkercluster);
 /*Vue.component("LTooltip", LTooltip);
 Vue.component("LIcon", LIcon);
 Vue.component("LCircle", LCircle);
 Vue.component("LRectangle", LRectangle);
 Vue.component("LPolygon", LPolygon);
-Vue.component("LPolyline", LPolyline);
-Vue.component("LGeoJson", LGeoJson);*/
+Vue.component("LPolyline", LPolyline);*/
 
 import { Icon, tileLayer } from "leaflet";
 
