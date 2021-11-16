@@ -1,9 +1,9 @@
 <template>
   <div class="footer px-3 py-md-2">
     <v-container class="pa-0">
-      <div class="rightsReserved text-center my-2 text-caption text-md-body-2">
+      <div class="rightsReserved text-start my-1 text-caption text-md-body-2">
         © Code: <a href="https://github.com/virtools" target="_blank">Wei</a> / Design:
-        <a href="" target="_blank">XX</a>
+        <a href="https://2021.thef2e.com/users/6296427084285739863" target="_blank">Clancy</a>
       </div>
     </v-container>
   </div>
@@ -22,8 +22,13 @@ export default {
 <style lang="scss" scoped>
 @import "~@css/_variables.scss";
 .footer {
-  background-image: linear-gradient(180deg, #fff, #ececec);
+  position: absolute;
+  bottom: 0px;
+  width: 100%;
+  pointer-events: none;
+  //background-image: linear-gradient(180deg, #fff, #ececec);
   .rightsReserved {
+    pointer-events: auto;
     color: #5f5f5f;
     a {
       color: #078080;

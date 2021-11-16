@@ -22,12 +22,15 @@ import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 
-Vue.component("v-map", Vue2Leaflet.LMap);
-Vue.component("v-tilelayer", Vue2Leaflet.LTileLayer);
-Vue.component("v-icondefault", Vue2Leaflet.LIconDefault);
-Vue.component("v-marker", Vue2Leaflet.LMarker);
-Vue.component("v-popup", Vue2Leaflet.LPopup);
-Vue.component("v-geojson", Vue2Leaflet.LGeoJson);
+Vue.component("l-map", Vue2Leaflet.LMap);
+Vue.component("l-tilelayer", Vue2Leaflet.LTileLayer);
+Vue.component("l-icondefault", Vue2Leaflet.LIconDefault);
+Vue.component("l-marker", Vue2Leaflet.LMarker);
+Vue.component("l-popup", Vue2Leaflet.LPopup);
+Vue.component("l-geojson", Vue2Leaflet.LGeoJson);
+Vue.component("l-icon", Vue2Leaflet.LIcon);
+Vue.component("l-layergroup", Vue2Leaflet.LLayerGroup);
+console.log(Vue2Leaflet);
 // Vue.component("v-marker-cluster", Vue2LeafletMarkercluster);
 /*Vue.component("LTooltip", LTooltip);
 Vue.component("LIcon", LIcon);
@@ -44,18 +47,6 @@ AppExtensionPlugin.install = function (Vue, options) {
     computed: {
       $app() {
         return this.$root.$children[0];
-      },
-      $app_imageViewer() {
-        return this.$app.$refs.imageViewer;
-      },
-      $app_confirm() {
-        return this.$app.$refs.confirm;
-      },
-      $app_overlay() {
-        return this.$app.$refs.overlay;
-      },
-      $app_contextmenu() {
-        return this.$app.$refs.contextmenu;
       },
     },
   });

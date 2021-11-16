@@ -2,17 +2,32 @@
   <v-sheet class="content d-flex flex-column h-100">
     <Header></Header>
     <v-main class="main">
-      <v-map ref="myMap" :zoom.sync="zoom" :center.sync="center" class="w-100 h-100" :options="options">
-        <v-tilelayer :url="url" :attribution="attribution"></v-tilelayer>
-        <!-- <v-marker-cluster :options="clusterOptions" @clusterclick="click()" @ready="ready">
-          <v-marker v-for="l in locations" :key="l.id" :lat-lng="l.latLng" :icon="icon">
-            <v-popup :content="l.name"></v-popup>
-          </v-marker>
-        </v-marker-cluster> -->
-        <v-geojson :geojson="geojson"></v-geojson>
-      </v-map>
+      <l-map ref="myMap" :zoom.sync="zoom" :center.sync="center" class="w-100 h-100" :options="options">
+        <l-tilelayer :url="url" :attribution="attribution"></l-tilelayer>
+        <l-marker v-for="(item, index) in routeMarkers" :key="'route' + index" :lat-lng="item" :icon="routeIcon">
+        </l-marker>
+        <l-marker
+          v-for="(item, index) in scenicspotMarkers"
+          :key="'scenicspot' + index"
+          :lat-lng="item.latlng"
+          :icon="scenicspotIcon"
+        >
+          <l-popup>
+            <div class="d-flex flex-column align-center">
+              <div class="d-flex text-h6 pa-2 text-bold">
+                <div>{{ item.Name }}</div>
+              </div>
+              <div class="d-flex text-body-1 pa-2">
+                <div class="anchorIcon"></div>
+                <div class="ml-2">{{ item.ZipCodeChinese }}</div>
+              </div>
+            </div>
+          </l-popup>
+        </l-marker>
+        <l-geojson :geojson="geojson" :options="geooptions"></l-geojson>
+      </l-map>
       <div class="floatBox pointer-events-none">
-        <router-view @info="view_info"></router-view>
+        <router-view :center="center" @info="view_info"></router-view>
       </div>
       <div class="floatBox pointer-events-none pa-2 d-flex justify-start justify-md-center align-end">
         <v-btn class="pointer-events-auto" @click="currentPosition_click">目前位置</v-btn>
@@ -25,19 +40,36 @@
 import Header from "@vue/pages/components/Header";
 import Footer from "@vue/pages/components/Footer";
 import mixins_funs from "@vue/mixins/funs";
-import { latLng, Icon, icon } from "leaflet";
-import markerIconUrl from "@img/marker-icon.png";
-import markerShadowUrl from "@img/marker-shadow.png";
+import * as L from "leaflet";
+import stationMarkerIconUrl from "@img/station-marker-icon.png";
+import stationMarkerShadowUrl from "@img/station-marker-shadow.png";
+import scenicspotMarkerIconUrl from "@img/scenicspot-marker-icon.png";
+import scenicspotMarkerShadowUrl from "@img/scenicspot-marker-shadow.png";
 import { o } from "odata";
-
 export default {
   mixins: [mixins_funs],
   components: { Header, Footer },
   data() {
+    const routeIcon = L.divIcon({
+      html: `<div class="iconBox"></div>`,
+      className: "routeIcon",
+      iconSize: L.point(10, 10),
+    });
+    const scenicspotIcon = L.icon({
+      className: "scenicspotIcon",
+      iconUrl: scenicspotMarkerIconUrl,
+      shadowUrl: scenicspotMarkerShadowUrl,
+      iconSize: [25, 41],
+      shadowSize: [41, 41],
+      iconAnchor: [12.5, 41],
+      shadowAnchor: [12.5, 41],
+      popupAnchor: [0, -32],
+    });
     return {
-      geojson: null,
+      routeIcon: routeIcon,
+      scenicspotIcon: scenicspotIcon,
       zoom: 9,
-      center: [22.9, 120.65],
+      center: L.latLng(23.973875, 120.982024),
       url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       options: {
@@ -61,6 +93,17 @@ export default {
         BikesCapacity: "可容納自行車總數",
         ServiceType: "服務類型",
       },
+      geojson: null,
+      geooptions: {
+        style: {
+          color: "#ff7800",
+          weight: 8,
+          opacity: 0.8,
+          //dashArray: 15,
+        },
+      },
+      routeMarkers: [],
+      scenicspotMarkers: [],
     };
   },
   mounted() {
@@ -124,8 +167,8 @@ export default {
         };
       });
       const stationIcon = L.icon({
-        iconUrl: markerIconUrl,
-        shadowUrl: markerShadowUrl,
+        iconUrl: stationMarkerIconUrl,
+        shadowUrl: stationMarkerShadowUrl,
         iconSize: [25, 41],
         shadowSize: [41, 41],
         iconAnchor: [12.5, 41],
@@ -133,18 +176,12 @@ export default {
         popupAnchor: [0, -32],
       });
       const markerList = this.locations.map((item) =>
-        L.marker(new L.LatLng(item.latLng[0], item.latLng[1]), { icon: stationIcon }).bindPopup(getPopupText(item))
+        L.marker(L.latLng(item.latLng[0], item.latLng[1]), { icon: stationIcon }).bindPopup(getPopupText(item))
       );
       markers.addLayers(markerList);
     });
   },
   methods: {
-    click(e) {
-      console.log("clusterclick", e);
-    },
-    ready(e) {
-      console.log("ready", e);
-    },
     do_something(lat, lng) {
       this.map.setView([lat, lng], 16);
     },
@@ -161,8 +198,24 @@ export default {
     },
     view_info(src, type, data) {
       if (type === "geometry") {
-        console.log(src, type, data);
+        //console.log(src, type, data, data.coordinates[0][0]);
         this.geojson = data;
+        const points = data.coordinates.flatMap((points) => points).map((el) => [el[1], el[0]]);
+        this.routeMarkers = points;
+        const a = [0, 0];
+        points.forEach((el) => {
+          a[0] += el[0];
+          a[1] += el[1];
+        });
+        const len = points.length;
+        a[0] /= len;
+        a[1] /= len;
+        this.map.setView(a, 15);
+      } else if (type === "scenicspot") {
+        console.log(data);
+        this.map.setView(this.center, 14);
+
+        this.scenicspotMarkers = data;
       }
     },
   },
@@ -212,6 +265,7 @@ export default {
 }
 ::v-deep {
   .mycluster {
+    z-index: 1 !important;
     // background-color: brown;
     background-color: #056969;
     background-image: url("~@img/marker-cluster-icon.png");
@@ -227,6 +281,44 @@ export default {
   .leaflet-popup-content {
     white-space: nowrap;
   }
+  .routeIcon {
+    z-index: 0 !important;
+    .iconBox {
+      width: 10px;
+      height: 10px;
+      background-color: rgba(255, 119, 0, 0.25);
+      border-radius: 10px;
+      border: 2px solid #ff7800;
+      box-sizing: border-box;
+      &::before {
+        content: "";
+        position: absolute;
+        width: 5px;
+        height: 5px;
+        background-color: #ffffff;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        border-radius: 5px;
+      }
+      /*&.start {
+        background-color: #ff2600;
+      }
+      &.end {
+        background-color: #ffc400;
+      }*/
+    }
+  }
+  .scenicspotIcon {
+    z-index: 2;
+  }
+}
+.anchorIcon {
+  background-image: url(~@img/anchor_icon.png);
+  background-position: center;
+  background-size: contain;
+  width: 20px;
+  height: 20px;
 }
 @media (min-width: get-breakpoints("sm")) {
 }
