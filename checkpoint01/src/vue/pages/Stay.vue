@@ -225,7 +225,7 @@ export default {
         }
         parameter["$filter"] = "(ZipCode ne null or City ne null)";
         if (search != "") {
-          parameter["$filter"] += `and (contains(Name,'${search}') or contains(Address,'${search}'))`;
+          parameter["$filter"] += ` and (contains(Name,'${search}') or contains(Address,'${search}'))`;
         }
         o(`https://ptx.transportdata.tw/MOTC/v2/Tourism/Restaurant/`, {
           headers: { ...authorizationHeader },
@@ -250,7 +250,7 @@ export default {
         }
         parameter["$filter"] = "(ZipCode ne null or City ne null)";
         if (search != "") {
-          parameter["$filter"] += `and contains(Name,'${search}') or contains(Address,'${search}')`;
+          parameter["$filter"] += ` and contains(Name,'${search}') or contains(Address,'${search}')`;
         }
         o(`https://ptx.transportdata.tw/MOTC/v2/Tourism/Hotel/`, {
           headers: { ...authorizationHeader },

@@ -252,7 +252,7 @@ export default {
         if (search != "") {
           parameter[
             "$filter"
-          ] += `and contains(Keyword,'${search}') or contains(Name,'${search}') or contains(Address,'${search}')`;
+          ] += ` and contains(Keyword,'${search}') or contains(Name,'${search}') or contains(Address,'${search}')`;
         }
 
         o(`https://ptx.transportdata.tw/MOTC/v2/Tourism/ScenicSpot/`, {

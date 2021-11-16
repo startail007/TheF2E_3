@@ -1,6 +1,8 @@
 ## 作品說明
 
-The F2E 自行車道地圖資訊整合網
+#### The F2E 自行車道地圖資訊整合網
+
+###### 以 vuetifyjs 為前端核心結構，結合 leaflet，顯示 YouBike 站，可搜尋自行車道及附近景點。
 
 ## 系統說明
 
@@ -28,6 +30,7 @@ The F2E 自行車道地圖資訊整合網
 - Vue Router
 - Vuetify
 - Scss
+- Leaflet
 
 ## 第三方服務
 
