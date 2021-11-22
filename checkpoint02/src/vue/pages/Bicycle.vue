@@ -16,7 +16,7 @@
             </template>
           </v-btn>
         </div>
-        <div class="content d-flex flex-md-column flex-1" v-if="menu">
+        <div class="content d-flex flex-column flex-1" v-if="menu">
           <div class="searchCondition pa-2 flex-1 flex-md-none">
             <v-select
               :items="cityInfo.items"

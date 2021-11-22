@@ -16,7 +16,7 @@
             </template>
           </v-btn>
         </div>
-        <div class="content d-flex flex-md-column flex-1" v-if="menu">
+        <div class="content d-flex flex-column flex-1" v-if="menu">
           <div class="searchCondition pa-2 flex-1 flex-md-none">
             <div class="d-flex justify-end mt-2">
               <v-btn @click="search_click" depressed color="primary">搜尋</v-btn>
@@ -24,7 +24,9 @@
           </div>
           <div class="searchResults flex-3" v-if="searched">
             <template v-if="searchList.length">
-              <Card01 v-for="item in searchList" :key="item.ID" :item="item"></Card01>
+              <div v-for="item in searchList" :key="item.ID" class="px-2 py-4">
+                <Card01 :item="item"></Card01>
+              </div>
             </template>
             <template v-else>
               <div class="d-flex justify-center pa-4">無搜尋結果</div>

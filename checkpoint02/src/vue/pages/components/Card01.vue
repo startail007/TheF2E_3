@@ -1,5 +1,5 @@
 <template>
-  <v-card class="d-flex flex-column pa-3 ma-4 min-w-400" flat v-if="item">
+  <v-card class="d-flex flex-column pa-3 w-100" flat v-if="item">
     <div
       class="pic ph-180 w-100 mb-2 min-h-300"
       :style="{
