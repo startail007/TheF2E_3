@@ -14,7 +14,9 @@ import "vue-cool-lightbox/dist/vue-cool-lightbox.min.css";
 Vue.use(CoolLightBox);
 
 import * as Vue2Leaflet from "vue2-leaflet";
-import "leaflet.markercluster/dist/leaflet.markercluster";
+import * as Vue2LeafletMarkercluster from "vue2-leaflet-markercluster";
+// import "leaflet/dist/leaflet";
+// import "leaflet.markercluster/dist/leaflet.markercluster";
 // import Vue2LeafletMarkercluster from "@vue/components/Vue2LeafletMarkercluster";
 // import Vue2LeafletMarkercluster from "vue2-leaflet-markercluster";
 
@@ -30,7 +32,7 @@ Vue.component("l-popup", Vue2Leaflet.LPopup);
 Vue.component("l-geojson", Vue2Leaflet.LGeoJson);
 Vue.component("l-icon", Vue2Leaflet.LIcon);
 Vue.component("l-layergroup", Vue2Leaflet.LLayerGroup);
-console.log(Vue2Leaflet);
+// console.log(Vue2Leaflet);
 // Vue.component("v-marker-cluster", Vue2LeafletMarkercluster);
 /*Vue.component("LTooltip", LTooltip);
 Vue.component("LIcon", LIcon);

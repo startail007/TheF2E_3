@@ -175,6 +175,11 @@ export default {
         shadowAnchor: [12.5, 41],
         popupAnchor: [0, -32],
       });
+      const popup = L.popup();
+      // popup
+      //   .setLatLng(e.latlng)
+      //   .setContent("You clicked the map at " + e.latlng.toString())
+      //   .openOn(mymap);
       const markerList = this.locations.map((item) =>
         L.marker(L.latLng(item.latLng[0], item.latLng[1]), { icon: stationIcon }).bindPopup(getPopupText(item))
       );
@@ -230,15 +235,6 @@ export default {
 @import "~@css/_variables.scss";
 .content {
   //min-height: 100vh;
-}
-.playBox {
-  position: absolute;
-  height: 20px;
-  //background-color: #f00;
-  bottom: 20px;
-  left: 10px;
-  right: 10px;
-  z-index: 9999;
 }
 ::v-deep {
   .leaflet-pane {
