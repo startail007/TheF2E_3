@@ -11,19 +11,19 @@
         <template v-if="dynamic">
           <template v-if="dynamic.Estimates">
             <div v-for="(item, key) in dynamic.Estimates" :key="key" class="bus d-flex my-1">
-              <template v-if="item.VehicleStopStatus !== undefined">
-                <div v-if="item.VehicleStopStatus" class="state inDeparture text-center flex-1">進站</div>
-                <div v-else class="state outDeparture text-center flex-1">離站</div>
-              </template>
-              <template v-else>
-                <div class="base d-flex flex-1">
-                  <div class="mr-2 flex-1 text-center">車牌 {{ item.PlateNumb }}</div>
-                  <div class="mr-2 flex-1 text-center">剩 {{ Math.round(item.EstimateTime / 60) }} 分鐘</div>
-                  <div class="flex-1 text-center">
-                    <template v-if="item.IsLastBus">末班車</template>
-                  </div>
+              <div class="base d-flex flex-1">
+                <div class="mx-1 flex-1 text-center">車牌 {{ item.PlateNumb }}</div>
+                <template v-if="item.VehicleStopStatus !== undefined">
+                  <div v-if="item.VehicleStopStatus" class="mx-1 state inDeparture text-center flex-1">進站</div>
+                  <div v-else class="mx-1 state outDeparture text-center flex-1">離站</div>
+                </template>
+                <template v-else>
+                  <div class="mx-1 flex-1 text-center">剩 {{ Math.round(item.EstimateTime / 60) }} 分鐘</div>
+                </template>
+                <div class="mx-1 flex-1 text-center">
+                  <template v-if="item.IsLastBus">末班車</template>
                 </div>
-              </template>
+              </div>
             </div>
           </template>
           <template v-else>
