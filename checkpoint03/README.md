@@ -1,8 +1,8 @@
 ## 作品說明
 
-#### The F2E 自行車道地圖資訊整合網
+#### The F2E 全台公車動態時刻查詢應用服務
 
-###### 以 vuetifyjs 為前端核心結構，結合 leaflet，顯示 YouBike 站，可搜尋自行車道及附近景點。
+###### 以 vuetifyjs 為前端核心結構，結合 leaflet，顯示附近公車站點及公車路線動態資訊。
 
 ## 系統說明
 
@@ -27,7 +27,6 @@
 
 - Webpack Cli
 - Vue Cli
-- Vue Router
 - Vuetify
 - Scss
 - Leaflet
@@ -35,7 +34,8 @@
 ## 第三方服務
 
 - google fonts
+- tdx 運輸資料流通服務
 
 ## 線上 demo
 
-- [連結](https://virtools.github.io/TheF2E_3/checkpoint02/dist)
+- [連結](https://virtools.github.io/TheF2E_3/checkpoint03/dist)

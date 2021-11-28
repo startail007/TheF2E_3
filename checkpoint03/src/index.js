@@ -32,6 +32,8 @@ Vue.component("l-popup", Vue2Leaflet.LPopup);
 Vue.component("l-geojson", Vue2Leaflet.LGeoJson);
 Vue.component("l-icon", Vue2Leaflet.LIcon);
 Vue.component("l-layergroup", Vue2Leaflet.LLayerGroup);
+Vue.component("l-icondefault", Vue2Leaflet.LIconDefault);
+
 // console.log(Vue2Leaflet);
 // Vue.component("v-marker-cluster", Vue2LeafletMarkercluster);
 /*Vue.component("LTooltip", LTooltip);

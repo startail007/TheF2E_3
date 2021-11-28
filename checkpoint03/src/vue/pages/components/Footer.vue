@@ -1,6 +1,6 @@
 <template>
-  <div class="footer px-3 py-md-2">
-    <v-container class="pa-0">
+  <div class="footer px-3">
+    <v-container class="pa-0 d-flex align-center justify-center">
       <div class="rightsReserved text-start my-1 text-caption text-md-body-2">
         © Code: <a href="https://github.com/virtools" target="_blank">Wei</a> / Design:
         <a href="https://2021.thef2e.com/users/6296432819610583727" target="_blank">鹽酥G</a>

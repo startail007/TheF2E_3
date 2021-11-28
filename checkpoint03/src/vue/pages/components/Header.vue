@@ -9,15 +9,15 @@
         </div>
         <!-- <slot name="items"></slot> -->
         <v-spacer></v-spacer>
-        <Menu class="d-none d-md-flex"></Menu>
+        <!-- <Menu class="d-none d-md-flex"></Menu> -->
         <!-- <slot name="endItems"></slot> -->
-        <v-app-bar-nav-icon
+        <!-- <v-app-bar-nav-icon
           class="d-flex d-md-none"
           @click="$refs.sidebar.isOpen = !$refs.sidebar.isOpen"
-        ></v-app-bar-nav-icon>
+        ></v-app-bar-nav-icon> -->
       </v-container>
     </v-app-bar>
-    <Sidebar ref="sidebar">
+    <!-- <Sidebar ref="sidebar">
       <template v-slot:content>
         <div class="d-flex pa-4">
           <v-spacer></v-spacer>
@@ -25,7 +25,7 @@
         </div>
         <Menu class="d-flex flex-column"></Menu>
       </template>
-    </Sidebar>
+    </Sidebar> -->
   </div>
 </template>
 <script>

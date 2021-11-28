@@ -1,36 +1,86 @@
 <template>
-  <v-sheet class="content d-flex flex-column h-100">
+  <v-sheet class="content d-flex flex-column w-100 h-100">
     <Header></Header>
-    <v-main class="main">
-      <l-map ref="myMap" :zoom.sync="zoom" :center.sync="center" class="w-100 h-100" :options="options">
-        <l-tilelayer :url="url" :attribution="attribution"></l-tilelayer>
-        <l-marker v-for="(item, index) in routeMarkers" :key="'route' + index" :lat-lng="item" :icon="routeIcon">
-        </l-marker>
-        <l-marker
-          v-for="(item, index) in scenicspotMarkers"
-          :key="'scenicspot' + index"
-          :lat-lng="item.latlng"
-          :icon="scenicspotIcon"
-        >
-          <l-popup>
-            <div class="d-flex flex-column align-center">
-              <div class="d-flex text-h6 pa-2 text-bold">
-                <div>{{ item.Name }}</div>
+    <v-main class="main w-100 h-100 pb-8">
+      <div class="d-flex flex-column flex-md-row w-100 h-100">
+        <l-map ref="myMap" :zoom.sync="zoom" :center.sync="center" class="w-100 h-100" :options="options">
+          <l-tilelayer :url="url" :attribution="attribution"></l-tilelayer>
+          <template v-if="state === 'nearbyStation'">
+            <l-marker
+              v-for="(item, index) in stationList"
+              :key="'station' + index"
+              :lat-lng="item.latlng"
+              :icon="stationIcon"
+            >
+              <l-popup>
+                <div class="d-flex flex-column align-center">
+                  <div class="d-flex text-body-1 pa-2 text-bold">
+                    <div>{{ item.name }}</div>
+                  </div>
+                </div>
+              </l-popup>
+            </l-marker>
+          </template>
+          <template v-else-if="state === 'route'">
+            <l-marker v-for="(item, index) in stopList" :key="'route' + index" :lat-lng="changePos(item.StopPosition)">
+              <l-icon :iconSize="[0, 0]" :iconAnchor="[0, 0]" class-name="stopIcon">
+                <div class="iconBox"></div>
+                <div class="brand">
+                  <div class="brandTitle">{{ item.StopName.Zh_tw }}</div>
+                  <div class="arrow"></div>
+                </div>
+              </l-icon>
+            </l-marker>
+          </template>
+          <l-marker key="center" :lat-lng="center" :icon="centerIcon"> </l-marker>
+          <l-geojson :geojson="geojson" :options="geooptions"></l-geojson>
+        </l-map>
+        <div class="search pa-4">
+          <div class="d-flex justify-center">
+            <v-btn @click="search_click" depressed color="primary" class="ma-2">附近站牌</v-btn>
+            <v-btn @click="currentPosition_click" depressed color="primary" class="ma-2">目前位置</v-btn>
+          </div>
+          <div v-if="state">
+            <template v-if="state === 'nearbyStation'">
+              <div v-for="(item, key) in stationList" :key="key">
+                <Card01 :item="item" @route="card01_route"></Card01>
               </div>
-              <div class="d-flex text-body-1 pa-2">
-                <div class="anchorIcon"></div>
-                <div class="ml-2">{{ item.ZipCodeChinese }}</div>
+            </template>
+            <template v-else-if="state === 'route'">
+              <div class="text-h6 d-flex align-center">
+                <v-btn @click="routeBack_click" depressed color="#3ec3a4" x-small fab class="mr-2 text-h6">←</v-btn>
+                <div>{{ currentRoute.name }}</div>
               </div>
-            </div>
-          </l-popup>
-        </l-marker>
-        <l-geojson :geojson="geojson" :options="geooptions"></l-geojson>
-      </l-map>
-      <div class="search pw-400">
-        <v-btn @click="search_click" depressed color="primary">搜尋</v-btn>
-      </div>
-      <div class="floatBox pointer-events-none pa-2 d-flex justify-start justify-md-center align-end">
-        <v-btn class="pointer-events-auto" @click="currentPosition_click">目前位置</v-btn>
+              <div v-if="stopList.length">
+                <v-item-group mandatory v-model="routeIndex" class="d-flex w-100" @change="route_change">
+                  <v-item
+                    class="routeItem flex-1 text-center py-2 text-bold text-body-2"
+                    v-slot="{ toggle }"
+                    v-if="destinationStopName"
+                  >
+                    <div @click="toggle">
+                      往 <span class="stopName">{{ destinationStopName }}</span>
+                    </div>
+                  </v-item>
+                  <v-item
+                    class="routeItem flex-1 text-center py-2 text-bold text-body-2"
+                    v-slot="{ toggle }"
+                    v-if="departureStopName"
+                  >
+                    <div @click="toggle">
+                      往 <span class="stopName">{{ departureStopName }}</span>
+                    </div>
+                  </v-item>
+                </v-item-group>
+                <div>
+                  <div v-for="(item, key) in stopList" :key="key">
+                    <Card02 :item="item" :dynamic="stopDynamicList[key]"></Card02>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
       </div>
     </v-main>
     <Footer></Footer>
@@ -41,24 +91,28 @@ import Header from "@vue/pages/components/Header";
 import Footer from "@vue/pages/components/Footer";
 import mixins_funs from "@vue/mixins/funs";
 import * as L from "leaflet";
+import centerMarkerIconUrl from "@img/center-marker-icon.png";
 import stationMarkerIconUrl from "@img/station-marker-icon.png";
 import stationMarkerShadowUrl from "@img/station-marker-shadow.png";
-import scenicspotMarkerIconUrl from "@img/scenicspot-marker-icon.png";
-import scenicspotMarkerShadowUrl from "@img/scenicspot-marker-shadow.png";
 import { o } from "odata";
+import cityList_iso3166 from "@src/res/cityList_iso3166";
+import Card01 from "./components/Card01.vue";
+import Card02 from "./components/Card02.vue";
 export default {
   mixins: [mixins_funs],
-  components: { Header, Footer },
+  components: { Header, Footer, Card01, Card02 },
   data() {
-    const routeIcon = L.divIcon({
-      html: `<div class="iconBox"></div>`,
-      className: "routeIcon",
-      iconSize: L.point(10, 10),
+    const centerIcon = L.icon({
+      className: "centerIcon",
+      iconUrl: centerMarkerIconUrl,
+      iconSize: [40, 40],
+      iconAnchor: [20, 20],
+      popupAnchor: [0, 0],
     });
-    const scenicspotIcon = L.icon({
-      className: "scenicspotIcon",
-      iconUrl: scenicspotMarkerIconUrl,
-      shadowUrl: scenicspotMarkerShadowUrl,
+    const stationIcon = L.icon({
+      className: "stationIcon",
+      iconUrl: stationMarkerIconUrl,
+      shadowUrl: stationMarkerShadowUrl,
       iconSize: [25, 41],
       shadowSize: [41, 41],
       iconAnchor: [12.5, 41],
@@ -66,10 +120,10 @@ export default {
       popupAnchor: [0, -32],
     });
     return {
-      routeIcon: routeIcon,
-      scenicspotIcon: scenicspotIcon,
+      centerIcon: centerIcon,
+      stationIcon: stationIcon,
       zoom: 9,
-      center: L.latLng(23.973875, 120.982024),
+      center: L.latLng(23.673875, 120.982024),
       url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       options: {
@@ -93,100 +147,54 @@ export default {
         BikesCapacity: "可容納自行車總數",
         ServiceType: "服務類型",
       },
-      geojson: null,
+      geojson: [],
       geooptions: {
         style: {
-          color: "#ff7800",
+          color: "#355f8b",
           weight: 8,
           opacity: 0.8,
           //dashArray: 15,
         },
       },
-      routeMarkers: [],
-      scenicspotMarkers: [],
+      stationList: [],
+      route: [],
+      routeDynamic: [],
+      stopList: [],
+      stopDynamicList: [],
+      destinationStopName: "",
+      departureStopName: "",
+      routeIndex: 0,
+      state: "",
+      dynamicID: null,
+      currentRoute: null,
     };
   },
-  mounted() {
-    /*const markers = L.markerClusterGroup({
-      iconCreateFunction(cluster) {
-        const markers = cluster.getAllChildMarkers();
-        return L.divIcon({
-          html: `<div class="text">${markers.length}</div>`,
-          className: "mycluster",
-          iconSize: L.point(40, 40),
-        });
-      },
-    });
-    this.map.addLayer(markers);
-
-    const authorizationHeader = this.getAuthorizationHeader();
-    const p = [];
-    const citys = [
-      "Taichung",
-      "Hsinchu",
-      "MiaoliCounty",
-      "NewTaipei",
-      "PingtungCounty",
-      "KinmenCounty",
-      "Taoyuan",
-      "Taipei",
-      "Kaohsiung",
-      "Tainan",
-      "Chiayi",
-    ];
-    citys.forEach((el) => {
-      let city = el;
-      const parameter = { $format: "JSON" };
-      p.push(
-        o(`https://ptx.transportdata.tw/MOTC/v2/Bike/Station/`, {
-          headers: { ...authorizationHeader },
-        })
-          .get(city)
-          .query(parameter)
-          .then((jsonData) => jsonData)
-      );
-    });
-    const getPopupText = (info) => {
-      let s = "";
-      if (info) {
-        for (let key in this.mapPopupText) {
-          s += `<tr><td class="pa-1">${this.mapPopupText[key]}</td><td class="pa-1">${info[key] ?? ""}</td></tr>`;
-        }
-        s = `<table><tbody>${s}</tbody></table>`;
-      }
-      return s;
-    };
-    Promise.all(p).then((data) => {
-      this.locations = data.flat().map((el) => {
-        return {
-          id: el.StationUID,
-          latLng: [el.StationPosition.PositionLat, el.StationPosition.PositionLon],
-          StationName: el.StationName.Zh_tw.split("_")[1],
-          BikesCapacity: el.BikesCapacity,
-          ServiceType: el.ServiceType === 1 ? "YouBike1.0" : "YouBike2.0",
-        };
-      });
-      const stationIcon = L.icon({
-        iconUrl: stationMarkerIconUrl,
-        shadowUrl: stationMarkerShadowUrl,
-        iconSize: [25, 41],
-        shadowSize: [41, 41],
-        iconAnchor: [12.5, 41],
-        shadowAnchor: [12.5, 41],
-        popupAnchor: [0, -32],
-      });
-      const popup = L.popup();
-      // popup
-      //   .setLatLng(e.latlng)
-      //   .setContent("You clicked the map at " + e.latlng.toString())
-      //   .openOn(mymap);
-      const markerList = this.locations.map((item) =>
-        L.marker(L.latLng(item.latLng[0], item.latLng[1]), { icon: stationIcon }).bindPopup(getPopupText(item))
-      );
-      markers.addLayers(markerList);
-    });*/
-  },
+  mounted() {},
   methods: {
+    setState(state) {
+      if (this.state !== state) {
+        const oldState = this.state;
+        this.state = state;
+        if (oldState === "nearbyStation" && state === "") {
+          this.stationList = [];
+        }
+        if (oldState === "route" && state === "nearbyStation") {
+          this.routeIndex = 0;
+          this.stopList = [];
+          this.stopDynamicList = [];
+          this.route = [];
+          this.routeDynamic = [];
+          this.geojson = [];
+          this.destinationStopName = "";
+          this.departureStopName = "";
+          this.currentRoute = null;
+          this.updateDynamicOff();
+        }
+      }
+    },
+    changePos(data) {
+      return [data.PositionLat, data.PositionLon];
+    },
     do_something(lat, lng) {
       this.map.setView([lat, lng], 16);
     },
@@ -205,23 +213,143 @@ export default {
       const authorizationHeader = this.getAuthorizationHeader();
       const parameter = {
         $format: "JSON",
-        $spatialFilter: `nearby(${this.center.lat}, ${this.center.lng},1000)`,
+        $spatialFilter: `nearby(${this.center.lat}, ${this.center.lng},500)`,
       };
-      o(`https://ptx.transportdata.tw/MOTC/v2/Bus/Route/NearBy/`, {
+      const p = [];
+      p.push(
+        o(`https://ptx.transportdata.tw/MOTC/v2/Bus/Station/NearBy/`, {
+          headers: { ...authorizationHeader },
+        })
+          .get()
+          .query(parameter)
+      );
+      p.push(
+        o(`https://ptx.transportdata.tw/MOTC/v2/Bus/Route/NearBy/`, {
+          headers: { ...authorizationHeader },
+        })
+          .get()
+          .query(parameter)
+      );
+
+      const sList = [];
+
+      Promise.all(p).then((data) => {
+        data[0].forEach((el) => {
+          const LocationCityCode = el.LocationCityCode;
+          const StationName = el.StationName.Zh_tw;
+          const obj = sList.find((el) => el.name === StationName);
+          if (!obj) {
+            const Routes = new Set();
+            el.Stops.forEach((el) => Routes.add(el.RouteName.Zh_tw));
+            sList.push({
+              name: StationName,
+              latlng: this.changePos(el.StationPosition),
+              Routes: Routes,
+              city: cityList_iso3166.find((el) => el.code === LocationCityCode).value,
+              cityCode: el.LocationCityCode,
+            });
+          } else {
+            el.Stops.forEach((el) => obj.Routes.add(el.RouteName.Zh_tw));
+          }
+        });
+        sList.forEach((el) => {
+          el.Routes = [...el.Routes];
+          el.Routes = el.Routes.map((name) => {
+            const obj = data[1].find((el) => el.RouteName.Zh_tw === name);
+            return {
+              name: obj.RouteName.Zh_tw,
+              id: obj.RouteID,
+              uid: obj.RouteUID,
+              city: obj.City ?? el.city,
+              departureStopName: obj.DepartureStopNameZh,
+              destinationStopName: obj.DestinationStopNameZh,
+            };
+          });
+        });
+
+        this.stationList = sList;
+        this.map.setView(this.center, 16);
+
+        this.setState("nearbyStation");
+      });
+    },
+    card01_route(data) {
+      const authorizationHeader = this.getAuthorizationHeader();
+      const parameter = {
+        $format: "JSON",
+        $filter: `RouteUID eq '${data.uid}'`,
+      };
+      o(`https://ptx.transportdata.tw/MOTC/v2/Bus/StopOfRoute/City/`, {
         headers: { ...authorizationHeader },
       })
-        .get()
+        .get(`${data.city}/${data.name}`)
         .query(parameter)
         .then((jsonData) => {
-          console.log(jsonData);
-          /*this.scenicspotMarkers = jsonData.map((el) => {
-            return {
-              ...el,
-              latlng: [el.StationPosition.PositionLat, el.StationPosition.PositionLon],
-            };
-          });*/
-          this.map.setView(this.center, 16);
+          this.currentRoute = data;
+          this.routeIndex = 0;
+          if (jsonData.length) {
+            this.route = jsonData;
+            this.route_change(this.routeIndex);
+          } else {
+            this.route = [];
+            this.stopList = [];
+            this.geojson = [];
+          }
+          this.setState("route");
+          this.destinationStopName = data.destinationStopName;
+          this.departureStopName = data.departureStopName;
+          this.routeStateData(data);
+          this.updateDynamicOn();
         });
+    },
+    routeStateData(data) {
+      this.routeDynamic = [];
+      if (!this.route.length) return;
+      const authorizationHeader = this.getAuthorizationHeader();
+      const parameter = {
+        $format: "JSON",
+        $filter: `RouteUID eq '${data.uid}'`,
+      };
+      o(`https://ptx.transportdata.tw/MOTC/v2/Bus/EstimatedTimeOfArrival/City/`, {
+        headers: { ...authorizationHeader },
+      })
+        .get(`${data.city}/${data.name}`)
+        .query(parameter)
+        .then((jsonData) => {
+          this.routeDynamic = this.route.map((d) => {
+            const s = jsonData.filter((el) => el.Direction === d.Direction);
+            return d.Stops.map((stop) => {
+              const obj = s.find((el) => el.StopUID === stop.StopUID);
+              return obj;
+            });
+          });
+          this.stopDynamicList = this.routeDynamic[this.routeIndex];
+        });
+    },
+    route_change(index) {
+      index = Math.min(index, this.route.length - 1);
+      this.stopList = this.route[index].Stops;
+      if (this.routeDynamic.length) {
+        this.stopDynamicList = this.routeDynamic[index];
+      }
+      this.geojson = [
+        {
+          type: "LineString",
+          coordinates: this.stopList.map((el) => this.changePos(el.StopPosition).reverse()),
+        },
+      ];
+    },
+    updateDynamicOn() {
+      clearInterval(this.dynamicID);
+      this.dynamicID = setInterval(() => {
+        this.routeStateData(this.currentRoute);
+      }, 15000);
+    },
+    updateDynamicOff() {
+      clearInterval(this.dynamicID);
+    },
+    routeBack_click() {
+      this.setState("nearbyStation");
     },
   },
   computed: {
@@ -260,32 +388,19 @@ export default {
   //filter: contrast(1.1) saturate(0.75);
 }
 ::v-deep {
-  .mycluster {
-    z-index: 1 !important;
-    // background-color: brown;
-    background-color: #056969;
-    background-image: url("~@img/marker-cluster-icon.png");
-    border-radius: 40px;
-    .text {
-      position: absolute;
-      color: #fff;
-      left: 50%;
-      transform: translateX(-50%);
-      bottom: 3px;
-    }
-  }
   .leaflet-popup-content {
     white-space: nowrap;
   }
-  .routeIcon {
+  .stopIcon {
     z-index: 0 !important;
     .iconBox {
-      width: 10px;
-      height: 10px;
-      background-color: rgba(255, 119, 0, 0.25);
-      border-radius: 10px;
-      border: 2px solid #ff7800;
+      width: 20px;
+      height: 20px;
+      background-color: rgba(53, 95, 141, 0.25);
+      border-radius: 20px;
+      border: 2px solid #355f8b;
       box-sizing: border-box;
+      transform: translate(-50%, -50%);
       &::before {
         content: "";
         position: absolute;
@@ -297,16 +412,65 @@ export default {
         transform: translate(-50%, -50%);
         border-radius: 5px;
       }
-      /*&.start {
-        background-color: #ff2600;
+    }
+    .brand {
+      width: 120px;
+      height: 50px;
+      transform: translate(-50%, -100%);
+      border-radius: 5px;
+      background-color: #355f8b;
+      padding: 5px;
+      bottom: 40px;
+      position: relative;
+      border: 2px px solid #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      .brandTitle {
+        text-align: center;
+        color: #fff;
       }
-      &.end {
-        background-color: #ffc400;
-      }*/
+      .arrow {
+        width: 0;
+        height: 0;
+        border-color: #fff transparent transparent;
+        border-style: solid;
+        top: 100%;
+        border-width: 14px 12px 0;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        &::before {
+          content: "";
+          width: 0;
+          height: 0;
+          border-color: #355f8b transparent transparent;
+          border-style: solid;
+          border-width: 10px 10px 0;
+          left: 0;
+          position: absolute;
+          left: -10px;
+          top: -14px;
+        }
+      }
+    }
+    /*.iconBox {
+      & + .brand {
+        display: none;
+      }
+      &:hover + .brand {
+        display: block;
+      }
+    }*/
+    &:hover {
+      z-index: 999 !important;
     }
   }
-  .scenicspotIcon {
-    z-index: 2;
+  .stationIcon {
+    z-index: 1 !important;
+  }
+  .centerIcon {
+    z-index: 2 !important;
   }
 }
 .anchorIcon {
@@ -317,16 +481,42 @@ export default {
   height: 20px;
 }
 .search {
-  position: absolute;
+  /*position: absolute;
   left: 0px;
-  top: 0px;
-  background-color: #ffffff;
+  top: 0px;*/
+  background-color: #f7fcfd;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+.routeItem {
+  position: relative;
+  .stopName {
+    color: #3ec3a4;
+  }
+  &:not(.v-item--active) {
+    cursor: pointer;
+  }
+  &.v-item--active {
+    &::after {
+      content: "";
+      width: 100%;
+      height: 3px;
+      background-color: #3ec3a4;
+      left: 0px;
+      bottom: 0px;
+      position: absolute;
+    }
+  }
 }
 @media (min-width: get-breakpoints("sm")) {
 }
 @media (min-width: get-breakpoints("md")) {
 }
 @media (min-width: get-breakpoints("lg")) {
+  .search {
+    max-width: 500px;
+  }
 }
 @media (min-width: get-breakpoints("xl")) {
 }
