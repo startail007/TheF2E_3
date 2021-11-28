@@ -11,7 +11,7 @@
         <template v-if="dynamic">
           <template v-if="dynamic.Estimates">
             <div v-for="(item, key) in dynamic.Estimates" :key="key" class="bus d-flex my-1">
-              <div class="base d-flex flex-1">
+              <div class="base d-flex flex-1 align-center">
                 <div class="mx-1 flex-1 text-center">車牌 {{ item.PlateNumb }}</div>
                 <template v-if="item.VehicleStopStatus !== undefined">
                   <div v-if="item.VehicleStopStatus" class="mx-1 state inDeparture text-center flex-1">進站</div>
