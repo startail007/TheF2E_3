@@ -18,9 +18,7 @@
               <template v-else>
                 <div class="base d-flex flex-1">
                   <div class="mr-2 flex-1 text-center">車牌 {{ item.PlateNumb }}</div>
-                  <div class="mr-2 flex-1 text-center">
-                    剩 {{ (Math.round((10 * item.EstimateTime) / 60) / 10).toFixed(1) }} 分鐘
-                  </div>
+                  <div class="mr-2 flex-1 text-center">剩 {{ Math.round(item.EstimateTime / 60) }} 分鐘</div>
                   <div class="flex-1 text-center">
                     <template v-if="item.IsLastBus">末班車</template>
                   </div>
