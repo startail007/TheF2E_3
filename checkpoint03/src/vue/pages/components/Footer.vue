@@ -27,6 +27,7 @@ export default {
   width: 100%;
   pointer-events: none;
   //background-image: linear-gradient(180deg, #fff, #ececec);
+  background-color: #323232;
   .rightsReserved {
     pointer-events: auto;
     color: #5f5f5f;

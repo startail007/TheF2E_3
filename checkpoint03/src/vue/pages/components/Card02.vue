@@ -67,6 +67,7 @@ export default {
 <style lang="scss" scoped>
 @import "~@css/_variables.scss";
 .v-card {
+  background-color: transparent;
   .bus {
     font-weight: bold;
     color: #333;

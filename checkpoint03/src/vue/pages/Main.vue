@@ -34,22 +34,33 @@
           </template>
           <l-marker key="center" :lat-lng="center" :icon="centerIcon"> </l-marker>
           <l-geojson :geojson="geojson" :options="geooptions"></l-geojson>
+          <div class="floatBox">
+            <v-btn @click="currentPosition_click" depressed class="ma-2">目前位置</v-btn>
+          </div>
         </l-map>
-        <div class="search pa-4">
-          <div class="d-flex justify-center">
-            <v-btn @click="search_click" depressed color="primary" class="ma-2">附近站牌</v-btn>
-            <v-btn @click="currentPosition_click" depressed color="primary" class="ma-2">目前位置</v-btn>
+        <div class="search">
+          <div class="d-flex justify-center mb-6 px-4 pt-4">
+            <v-btn @click="search_click" depressed color="primary" class="w-100">搜尋附近站牌</v-btn>
           </div>
           <div v-if="state">
             <template v-if="state === 'nearbyStation'">
-              <div v-for="(item, key) in stationList" :key="key">
-                <Card01 :item="item" @route="card01_route"></Card01>
+              <div class="px-4 listContent">
+                <div v-for="(item, key) in stationList" :key="key">
+                  <Card01 :item="item" @route="card01_route"></Card01>
+                </div>
               </div>
             </template>
             <template v-else-if="state === 'route'">
-              <div class="text-h6 d-flex align-center">
-                <v-btn @click="routeBack_click" depressed color="#3ec3a4" x-small fab class="mr-2 text-h6">←</v-btn>
-                <div>{{ currentRoute.name }}</div>
+              <div class="d-flex align-center px-4 mb-4">
+                <v-btn @click="routeBack_click" depressed color="transparent" x-small fab class="mr-2 text-body-1">
+                  <v-icon>mdi-arrow-left-thick</v-icon>
+                </v-btn>
+                <div class="text-h6">{{ currentRoute.name }}</div>
+                <v-spacer></v-spacer>
+                <v-btn @click="refresh_click" depressed color="transparent" small class="mr-2 text-body-2">
+                  <v-icon>mdi-refresh</v-icon>
+                  <span>立即更新</span>
+                </v-btn>
               </div>
               <div v-if="stopList.length">
                 <v-item-group mandatory v-model="routeIndex" class="d-flex w-100" @change="route_change">
@@ -72,7 +83,7 @@
                     </div>
                   </v-item>
                 </v-item-group>
-                <div>
+                <div class="px-4 listContent">
                   <div v-for="(item, key) in stopList" :key="key">
                     <Card02 :item="item" :dynamic="stopDynamicList[key]"></Card02>
                   </div>
@@ -339,17 +350,20 @@ export default {
         },
       ];
     },
-    updateDynamicOn() {
+    updateDynamicOn(t = 15000) {
       clearInterval(this.dynamicID);
       this.dynamicID = setInterval(() => {
         this.routeStateData(this.currentRoute);
-      }, 15000);
+      }, t);
     },
     updateDynamicOff() {
       clearInterval(this.dynamicID);
     },
     routeBack_click() {
       this.setState("nearbyStation");
+    },
+    refresh_click() {
+      this.updateDynamicOn(1000);
     },
   },
   computed: {
@@ -472,6 +486,9 @@ export default {
   .centerIcon {
     z-index: 2 !important;
   }
+}
+.listContent {
+  background-color: #fff;
 }
 .anchorIcon {
   background-image: url(~@img/anchor_icon.png);

@@ -44,6 +44,7 @@ export default {
 <style lang="scss" scoped>
 @import "~@css/_variables.scss";
 .v-card {
+  background-color: transparent;
   .route {
     background-color: #ddd;
     border-radius: 10px;
